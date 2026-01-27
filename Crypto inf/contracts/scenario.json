@@ -1,0 +1,24 @@
+{
+  "accounts": {
+    "account{0}": "0x096125814578E5A179cacbd0E3faea62fBFADE4B"
+  },
+  "linkReferences": {},
+  "transactions": [
+    {
+      "timestamp": 1762975879708,
+      "record": {
+        "value": "0",
+        "inputs": "(uint256,uint256)",
+        "parameters": [
+          "1",
+          "7"
+        ],
+        "name": "publishTender",
+        "type": "function",
+        "to": "created{undefined}",
+        "from": "account{0}"
+      }
+    }
+  ],
+  "abis": {}
+}
