@@ -1,71 +1,442 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
+# 🎯 MicroTender - Децентрализованная система тендеров
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Система управления тендерами для студенческого совета на базе блокчейна Polygon и IPFS.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 📋 Что мы сделали сегодня
 
-### `npm start`
+### ✅ 1. Интеграция IPFS с Pinata
+- **Загрузка документов:** Реализована загрузка PDF, DOC, DOCX файлов в IPFS через Pinata
+- **Хранение CID:** CID документов сохраняется в смарт-контракте
+- **UI для загрузки:** Добавлена форма с drag & drop, индикатором прогресса и отображением загруженного файла
+- **Файлы:**
+  - `src/utils/pinata.js` - утилита для работы с Pinata API
+  - Интеграция в `src/App.jsx` для создания тендеров
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### ✅ 2. Система авторизации вендоров
+- **Заявки на регистрацию:** Вендоры подают заявки через форму
+- **Одобрение членами совета:** Только члены студенческого совета могут одобрять/отклонять заявки
+- **Статусы заявок:** Pending → Approved/Rejected
+- **Функции в контракте:**
+  - `submitVendorApplication()` - подача заявки
+  - `approveVendorApplication()` - одобрение (только Member/Admin)
+  - `rejectVendorApplication()` - отклонение (только Member/Admin)
+  - `revokeVendorStatus()` - отзыв статуса вендора
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### ✅ 3. Улучшенный смарт-контракт
+- **Оптимизация газа:** Использование `unchecked` блоков для безопасных операций
+- **Безопасность:** Добавлены модификаторы `validTender`, `validApplication`
+- **Константы:** Ограничения на дедлайны и длину строк
+- **Новые функции:**
+  - `cancelTender()` - отмена тендера
+  - `updateTenderIPFSCID()` - обновление CID документа
+  - `revokeRole()` - отзыв роли пользователя
+- **События:** Расширенный набор events для отслеживания всех действий
 
-### `npm test`
+### ✅ 4. Улучшения UI/UX
+- **Автоматическое определение ролей:** Роли определяются автоматически на основе контракта
+- **Переключатель ролей для тестирования:** В dev режиме доступен переключатель между Observer/Council/Vendor
+- **Бейджи статусов:** Отображение ролей и статусов пользователя
+- **Валидация форм:** Проверка данных перед отправкой
+- **Обработка ошибок:** Понятные сообщения об ошибках
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### ✅ 5. Управление ролями
+- **Три режима в UI:**
+  - **Observer** - гость, может просматривать тендеры и подавать заявку на регистрацию
+  - **Council** - член совета (Member/Admin), может создавать тендеры, голосовать, одобрять вендоров
+  - **Vendor** - одобренный вендор, может подавать предложения
+- **Автоматическое переключение:** Режим определяется автоматически на основе ролей в контракте
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🚧 Что ещё нужно сделать
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 🔴 Высокий приоритет
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Тестирование всей системы**
+   - [ ] Протестировать полный цикл: создание тендера → подача предложения → голосование → завершение
+   - [ ] Протестировать на Polygon Amoy testnet
+   - [ ] Проверить все роли и их возможности
+   - [ ] Проверить обработку ошибок
 
-### `npm run eject`
+2. **Настройка Pinata**
+   - [ ] Создать аккаунт на https://pinata.cloud
+   - [ ] Получить JWT токен (нужны права `pinFileToIPFS`)
+   - [ ] Добавить `REACT_APP_PINATA_JWT` в `.env.local`
+   - [ ] Протестировать загрузку файлов
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 🟡 Средний приоритет
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+3. **Обновление CID после создания тендера**
+   - [ ] Функция `updateTenderIPFSCID` уже есть в контракте
+   - [ ] Добавить UI для загрузки файла после создания тендера (до публикации)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+4. **Улучшения UI для IPFS**
+   - [ ] Предпросмотр PDF в iframe
+   - [ ] Отображение размера файла
+   - [ ] Кнопка скачивания
+   - [ ] Улучшенная обработка ошибок загрузки
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+5. **Валидация и безопасность**
+   - [ ] Проверка размера файлов (максимум 10MB)
+   - [ ] Проверка типов файлов (только PDF, DOC, DOCX)
+   - [ ] Rate limiting для API вызовов
 
-## Learn More
+### 🟢 Низкий приоритет
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+6. **Автоматизация**
+   - [ ] Автоматическая финализация тендеров после окончания голосования
+   - [ ] Уведомления о важных событиях
+   - [ ] Email уведомления
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+7. **Дополнительные функции**
+   - [ ] История всех тендеров
+   - [ ] Статистика и аналитика
+   - [ ] Фильтры и сортировка
+   - [ ] Экспорт данных в PDF/CSV
+   - [ ] Поиск по тендерам
 
-### Code Splitting
+8. **Оптимизация**
+   - [ ] Пагинация для больших списков
+   - [ ] Кэширование данных
+   - [ ] Lazy loading компонентов
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## 📚 Инструкция по работе с контрактом через Remix IDE
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 🚀 Быстрый старт
 
-### Making a Progressive Web App
+#### Шаг 1: Откройте Remix IDE
+1. Перейдите на https://remix.ethereum.org
+2. Создайте новый файл `MicroTender.sol` или откройте существующий из `Crypto inf/contracts/MicroTender.sol`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+#### Шаг 2: Подключите кошелек
+1. В Remix перейдите в раздел **"Deploy & Run Transactions"** (слева)
+2. Выберите **"Injected Provider - MetaMask"** в Environment
+3. Подключите ваш MetaMask кошелек
+4. Выберите сеть **Polygon Amoy** (тестовая сеть)
 
-### Advanced Configuration
+#### Шаг 3: Задеплойте или подключитесь к контракту
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+**Вариант A: Задеплоить новый контракт**
+1. Скомпилируйте контракт (Compile tab, выберите версию 0.8.19)
+2. В Deploy выберите `MicroTender`
+3. Нажмите **"Deploy"**
+4. Скопируйте адрес задеплоенного контракта
 
-### Deployment
+**Вариант B: Подключиться к существующему контракту**
+1. В разделе "At Address" вставьте адрес вашего контракта
+2. Нажмите **"At Address"**
+3. Контракт появится в списке задеплоенных контрактов
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+### 🔧 Основные операции
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+#### 1. Управление ролями
+
+**Выдать роль Member пользователю:**
+```
+Функция: grantRole
+Параметры:
+  - _user: адрес пользователя (например: 0x1234...5678)
+  - _role: 0 (Member) или 1 (Admin)
+  
+Нажмите "transact" и подтвердите в MetaMask
+```
+
+**Проверить роль пользователя:**
+```
+Функция: getUserRole
+Параметры:
+  - _user: адрес пользователя
+  
+Нажмите "call" (view функция, бесплатно)
+Результат: 0 = Member, 1 = Admin
+```
+
+**Отозвать роль:**
+```
+Функция: revokeRole
+Параметры:
+  - _user: адрес пользователя
+  
+Нажмите "transact" и подтвердите
+```
+
+#### 2. Управление тендерами
+
+**Создать тендер:**
+```
+Функция: createTender
+Параметры:
+  - _title: "Название тендера"
+  - _description: "Описание"
+  - _maxBudget: 1000000000000000000 (1 ETH в wei)
+  - _category: "Kancelárske potreby"
+  - _ipfsCID: "Qm..." или "" (пусто)
+  
+Нажмите "transact"
+Результат: ID созданного тендера (в events)
+```
+
+**Опубликовать тендер (открыть для предложений):**
+```
+Функция: publishTender
+Параметры:
+  - _tenderId: 1 (ID тендера)
+  - _daysUntilDeadline: 7 (количество дней, минимум 3, максимум 30)
+  
+Нажмите "transact"
+Статус изменится с Draft на Open
+```
+
+**Начать голосование:**
+```
+Функция: startVoting
+Параметры:
+  - _tenderId: 1
+  - _votingDays: 3 (количество дней, минимум 1, максимум 14)
+  
+Нажмите "transact"
+Статус изменится с Open на Voting
+```
+
+**Завершить тендер (определить победителя):**
+```
+Функция: finalizeTender
+Параметры:
+  - _tenderId: 1
+  
+Нажмите "transact"
+Статус изменится с Voting на Completed
+```
+
+**Отменить тендер:**
+```
+Функция: cancelTender
+Параметры:
+  - _tenderId: 1
+  
+Нажмите "transact"
+Статус изменится на Cancelled (только в статусе Draft или Open)
+```
+
+**Обновить IPFS CID:**
+```
+Функция: updateTenderIPFSCID
+Параметры:
+  - _tenderId: 1
+  - _ipfsCID: "Qm..." (новый CID)
+  
+Нажмите "transact"
+(Только в статусе Draft, только создатель)
+```
+
+#### 3. Управление вендорами
+
+**Одобрить заявку вендора:**
+```
+Функция: approveVendorApplication
+Параметры:
+  - _applicationId: 1 (ID заявки)
+  
+Нажмите "transact"
+Вендор получит возможность подавать предложения
+```
+
+**Отклонить заявку вендора:**
+```
+Функция: rejectVendorApplication
+Параметры:
+  - _applicationId: 1
+  
+Нажмите "transact"
+Вендор сможет подать новую заявку
+```
+
+**Проверить статус заявки:**
+```
+Функция: getVendorApplicationStatus
+Параметры:
+  - _vendor: адрес вендора
+  
+Нажмите "call"
+Результат: 0 = Pending, 1 = Approved, 2 = Rejected
+```
+
+**Отозвать статус вендора:**
+```
+Функция: revokeVendorStatus
+Параметры:
+  - _vendor: адрес вендора
+  
+Нажмите "transact"
+(Может вызвать owner или сам вендор)
+```
+
+#### 4. Просмотр данных (view функции - бесплатно)
+
+**Получить информацию о тендере:**
+```
+Функция: getTender
+Параметры: _tenderId: 1
+Нажмите "call"
+```
+
+**Получить все предложения для тендера:**
+```
+Функция: getTenderBids
+Параметры: _tenderId: 1
+Нажмите "call"
+```
+
+**Получить количество голосов:**
+```
+Функция: getVoteCount
+Параметры:
+  - _tenderId: 1
+  - _bidId: 1
+Нажмите "call"
+```
+
+**Получить победителя:**
+```
+Функция: getWinningBid
+Параметры: _tenderId: 1
+Нажмите "call"
+```
+
+---
+
+### 🎭 Примеры использования
+
+#### Пример 1: Полный цикл тендера
+
+```solidity
+// 1. Member создает тендер
+createTender("50 markerov", "Potrebujeme 50 markerov", 1000000000000000000, "Kancelárske", "")
+
+// 2. Member публикует тендер
+publishTender(1, 7)  // 7 дней на предложения
+
+// 3. Vendor (одобренный) подает предложение
+submitBid(1, 800000000000000000, 5, "Dodám za 5 dní")
+
+// 4. Member начинает голосование
+startVoting(1, 3)  // 3 дня на голосование
+
+// 5. Member голосует
+castVote(1, 1)  // за предложение с ID 1
+
+// 6. Member завершает тендер
+finalizeTender(1)
+
+// 7. Проверяем победителя
+getWinningBid(1)  // вернет информацию о победителе
+```
+
+#### Пример 2: Управление вендорами
+
+```solidity
+// 1. Owner выдает роль Member
+grantRole(0x1234..., 0)  // 0 = Member
+
+// 2. Пользователь подает заявку как вендор
+submitVendorApplication("ABC Supplies", "info@abc.com", "Опыт 10 лет")
+
+// 3. Member одобряет заявку
+approveVendorApplication(1)
+
+// 4. Проверяем, что вендор зарегистрирован
+isRegisteredVendor(0x1234...)  // вернет true
+```
+
+---
+
+### 💡 Полезные советы
+
+1. **Конвертация ETH в Wei:**
+   - 1 ETH = 1,000,000,000,000,000,000 wei (10^18)
+   - Используйте функцию `weiToEther` для обратной конвертации
+
+2. **Работа с разными аккаунтами:**
+   - В MetaMask можно создать несколько тестовых аккаунтов
+   - Переключайтесь между ними в MetaMask
+   - Remix автоматически использует активный аккаунт
+
+3. **Просмотр событий:**
+   - В Remix перейдите в раздел **"Logs"** (внизу)
+   - После каждой транзакции вы увидите события
+
+4. **Отладка ошибок:**
+   - Если транзакция не проходит, проверьте:
+     - Правильность параметров
+     - Достаточно ли газа
+     - Правильную ли роль имеет аккаунт
+     - Правильный ли статус у тендера
+
+---
+
+### ⚠️ Важные замечания
+
+1. **Все транзакции требуют газа** - убедитесь, что на кошельке есть тестовые токены
+2. **View функции бесплатные** - можно вызывать сколько угодно раз
+3. **События видны только после транзакций** - они не сохраняются в контракте
+4. **Адреса чувствительны к регистру** - используйте правильный формат (0x...)
+
+---
+
+## 🛠️ Технические детали
+
+### Структура проекта
+
+```
+microtender-app/
+├── src/
+│   ├── App.jsx              # Главный компонент приложения
+│   ├── utils/
+│   │   └── pinata.js        # Утилита для работы с Pinata IPFS
+│   └── ...
+├── Crypto inf/
+│   └── contracts/
+│       └── MicroTender.sol  # Смарт-контракт (улучшенная версия)
+├── .env.local               # Переменные окружения (не коммитится)
+└── README.md                # Этот файл
+```
+
+### Переменные окружения
+
+Создайте файл `.env.local`:
+```
+REACT_APP_CONTRACT_ADDRESS=0x...  # Адрес задеплоенного контракта
+REACT_APP_PINATA_JWT=your_jwt_token_here
+```
+
+### Запуск проекта
+
+```bash
+# Установка зависимостей
+npm install
+
+# Запуск в режиме разработки
+npm start
+
+# Сборка для production
+npm run build
+```
+
+---
+
+## 📝 Примечания
+
+- **Роли в контракте:** `Member` (0), `Admin` (1)
+- **Режимы в UI:** `Observer`, `Council`, `Vendor` (определяются автоматически)
+- **Vendor** - это не роль, а отдельный статус через `registeredVendors`
+- **Pinata:** Бесплатный план до 1GB хранилища, достаточно для тестирования
+
+---
+
+**Готово к использованию!** 🎉
