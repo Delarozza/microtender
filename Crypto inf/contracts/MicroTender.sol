@@ -1,21 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-/**
- * @title MicroTender - Improved Version
- * @dev Smart contract для mikrotendrový системы студенческой рады
- * @notice Улучшенная версия с оптимизацией газа, дополнительными проверками безопасности и функциональностью
- */
 contract MicroTender {
-    
+
     // ========== ENUMS ==========
-    
     enum TenderStatus { Draft, Open, Voting, Completed, Fulfilled, Cancelled }
     enum UserRole { Member, Admin }
     enum ApplicationStatus { Pending, Approved, Rejected }
     
-    // ========== CONSTANTS ==========
-    
+    // ========== CONSTANTS ==========    
     uint256 public constant MIN_DEADLINE_DAYS = 3;
     uint256 public constant MAX_DEADLINE_DAYS = 30;
     uint256 public constant MIN_VOTING_DAYS = 1;
