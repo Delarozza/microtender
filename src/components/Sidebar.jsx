@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, FileText, Vote, BarChart3, Settings, PlusCircle, List, UserPlus, Shield } from 'lucide-react';
+import { Home, FileText, Vote, BarChart3, Settings, PlusCircle, List, UserPlus } from 'lucide-react';
 
 const menuItems = [
   { icon: Home, label: 'Dashboard', screen: 'Dashboard' },

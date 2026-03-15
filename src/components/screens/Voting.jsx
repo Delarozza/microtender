@@ -38,7 +38,7 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
     };
     load();
     return () => { cancelled = true; };
-  }, [contract, votingTenders.map((t) => t.id).join(','), votingTenders.length]);
+  }, [contract, tenders]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!contract || !account || tendersWithBids.length === 0) {

@@ -1,8 +1,5 @@
 import React from 'react';
-import { getCategoryIcon } from '../../utils/category';
 import { Upload, X } from 'lucide-react';
-
-const ETH_TO_EUR = 1800;
 
 export function CreateTender({
   onNavigate,

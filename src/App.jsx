@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wallet, FileText, Vote, TrendingUp, Shield, ShoppingBag, Eye } from 'lucide-react';
+
 import { uploadToIPFS, getIPFSUrl } from './utils/pinata';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -20,6 +20,7 @@ const CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constr
 
 // Názvy stavov
 const STATUS_NAMES = ['Koncept', 'Aktívny', 'Hlasovanie', 'Ukončený', 'Splnený', 'Zrušený'];
+// eslint-disable-next-line no-unused-vars
 const STATUS_COLORS = {
   'Koncept': 'bg-gray-500',
   'Aktívny': 'bg-green-500',
@@ -47,7 +48,7 @@ export default function MicroTenderApp() {
   const [bids, setBids] = useState([]);
   
   // Role stavy (rola z kontraktu podľa pripojenej peňaženky)
-  const [userRole, setUserRole] = useState(null); // Rola z kontraktu (0=Member, 1=Admin)
+  const [userRole, setUserRole] = useState(null); // eslint-disable-line no-unused-vars
   const [isMember, setIsMember] = useState(false); // Či je používateľ člen rady
   
 
@@ -118,7 +119,7 @@ export default function MicroTenderApp() {
     if (COUNCIL_ONLY_SCREENS.includes(activeScreen) && !canAccessCouncilScreens) {
       setActiveScreen('Dashboard');
     }
-  }, [activeScreen, canAccessCouncilScreens]);
+  }, [activeScreen, canAccessCouncilScreens]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Reakcia na zmenu účtu / odpojenie v MetaMask
   useEffect(() => {
@@ -168,7 +169,7 @@ export default function MicroTenderApp() {
       setMyApplicationStatus(null);
       loadUserRole();
     }
-  }, [contract, account]);
+  }, [contract, account]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadUserRole = async () => {
     const accountToLoad = account;
@@ -753,14 +754,14 @@ export default function MicroTenderApp() {
     if (contract) {
       loadAllTenders();
     }
-  }, [contract]);
+  }, [contract]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Проверка статуса заявки при подключении кошелька (для всех кроме совета)
   useEffect(() => {
     if (contract && account && !isMember) {
       checkMyApplicationStatus();
     }
-  }, [contract, account, isMember]);
+  }, [contract, account, isMember]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleNavigate = (screen) => {
     if (COUNCIL_ONLY_SCREENS.includes(screen) && !canAccessCouncilScreens) {

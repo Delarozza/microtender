@@ -1,6 +1,6 @@
 import React from 'react';
 import { getCategoryIcon, getCategoryLabel } from '../../utils/category';
-import { Clock, Users, Calendar } from 'lucide-react';
+import { Users, Calendar } from 'lucide-react';
 
 const ETH_TO_EUR = 1800;
 

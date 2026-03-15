@@ -1,5 +1,4 @@
 import React from 'react';
-import { getCategoryIcon } from '../../utils/category';
 import { FileText, ThumbsUp } from 'lucide-react';
 
 const ETH_TO_EUR = 1800;
