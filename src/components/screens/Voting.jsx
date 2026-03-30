@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ThumbsUp } from 'lucide-react';
+import { ThumbsUp, ExternalLink } from 'lucide-react';
 import { getCategoryIcon } from '../../utils/category';
+import { explorerUrl, shortAddress } from '../../utils/explorer';
 
 const ETH_TO_EUR = 1800;
 
@@ -116,9 +117,14 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
                   return (
                     <div key={offer.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold text-gray-900 dark:text-white truncate max-w-[200px]">
-                          {offer.vendor?.slice?.(0, 6)}...{offer.vendor?.slice?.(-4)}
-                        </h4>
+                        <a
+                          href={explorerUrl.address(offer.vendor)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-gray-900 dark:text-white truncate max-w-[200px] hover:text-purple-600 dark:hover:text-purple-400 inline-flex items-center gap-1"
+                        >
+                          {shortAddress(offer.vendor)} <ExternalLink size={12} className="text-gray-400 flex-shrink-0" />
+                        </a>
                         <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
                           {(offer.price * ETH_TO_EUR).toFixed(2)} €
                         </span>

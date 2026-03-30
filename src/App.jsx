@@ -14,6 +14,7 @@ import { VendorApproval } from './components/screens/VendorApproval';
 import { Settings } from './components/screens/Settings';
 import { Reports } from './components/screens/Reports';
 import { useNotifications } from './hooks/useNotifications';
+import { explorerUrl } from './utils/explorer';
 
 const CONTRACT_ADDRESS = "0xC5EA6607B52EBBbFFBac26b9b68594357720ab75";
 const CHAIN_ID_AMOY = 80002; // Polygon Amoy testnet
@@ -419,6 +420,7 @@ export default function MicroTenderApp() {
         ipfsCID || ''  // IPFS CID - используем загруженный CID или пустую строку
       );
       const receipt = await tx.wait();
+      const txLink = explorerUrl.tx(receipt.transactionHash);
       
       // Získať ID tendru z eventu
       const event = receipt.events?.find(e => e.event === 'TenderCreated');
@@ -428,8 +430,8 @@ export default function MicroTenderApp() {
       setCreationStep(2);
       
       const message = ipfsCID 
-        ? `✅ Koncept tendru vytvorený! ID: ${tenderId}\n\n📄 Dokument bol nahraný do IPFS\nCID: ${ipfsCID}\n\nTeraz ho uverejnite v kroku 2.`
-        : `✅ Koncept tendru vytvorený! ID: ${tenderId}\n\nTeraz ho uverejnite v kroku 2.`;
+        ? `✅ Koncept tendru vytvorený! ID: ${tenderId}\n\n📄 Dokument bol nahraný do IPFS\nCID: ${ipfsCID}\n\nTeraz ho uverejnite v kroku 2.\n\n🔗 Transakcia: ${txLink}`
+        : `✅ Koncept tendru vytvorený! ID: ${tenderId}\n\nTeraz ho uverejnite v kroku 2.\n\n🔗 Transakcia: ${txLink}`;
       
       alert(message);
       setLoading(false);
@@ -451,9 +453,9 @@ export default function MicroTenderApp() {
         createdTenderId,
         parseInt(createForm.daysOpen)
       );
-      await tx.wait();
+      const pubReceipt = await tx.wait();
       
-      alert(`✅ Tender bol uverejnený!\n\nOtvorený pre ponuky na ${createForm.daysOpen} dní.`);
+      alert(`✅ Tender bol uverejnený!\n\nOtvorený pre ponuky na ${createForm.daysOpen} dní.\n\n🔗 Transakcia: ${explorerUrl.tx(pubReceipt.transactionHash)}`);
       
       // Reset formulára
       setCreateForm({ 
@@ -532,8 +534,8 @@ export default function MicroTenderApp() {
         vendorApplicationForm.contactInfo,
         vendorApplicationForm.description
       );
-      await tx.wait();
-      alert('✅ Žiadosť bola odoslaná! Čaká na schválenie študentskou radou.');
+      const appReceipt = await tx.wait();
+      alert(`✅ Žiadosť bola odoslaná! Čaká na schválenie študentskou radou.\n\n🔗 Transakcia: ${explorerUrl.tx(appReceipt.transactionHash)}`);
       setVendorApplicationForm({ companyName: '', contactInfo: '', description: '' });
       await checkMyApplicationStatus();
       setLoading(false);
@@ -621,8 +623,8 @@ export default function MicroTenderApp() {
     try {
       setLoading(true);
       const tx = await contract.approveVendorApplication(applicationId);
-      await tx.wait();
-      alert('✅ Žiadosť bola schválená!');
+      const approveReceipt = await tx.wait();
+      alert(`✅ Žiadosť bola schválená!\n\n🔗 Transakcia: ${explorerUrl.tx(approveReceipt.transactionHash)}`);
       await loadVendorApplications();
       setLoading(false);
     } catch (error) {
@@ -648,8 +650,8 @@ export default function MicroTenderApp() {
     try {
       setLoading(true);
       const tx = await contract.revokeVendorStatus(vendorAddress);
-      await tx.wait();
-      alert('✅ Status dodávateľa bol odvolaný.');
+      const revokeReceipt = await tx.wait();
+      alert(`✅ Status dodávateľa bol odvolaný.\n\n🔗 Transakcia: ${explorerUrl.tx(revokeReceipt.transactionHash)}`);
       
       // Обновляем статус если это текущий пользователь
       if (vendorAddress === account) {
@@ -680,8 +682,8 @@ export default function MicroTenderApp() {
     try {
       setLoading(true);
       const tx = await contract.rejectVendorApplication(applicationId);
-      await tx.wait();
-      alert('❌ Žiadosť bola zamietnutá.');
+      const rejectReceipt = await tx.wait();
+      alert(`❌ Žiadosť bola zamietnutá.\n\n🔗 Transakcia: ${explorerUrl.tx(rejectReceipt.transactionHash)}`);
       await loadVendorApplications();
       setLoading(false);
     } catch (error) {
@@ -713,8 +715,8 @@ export default function MicroTenderApp() {
         bidForm.deliveryTime,
         bidForm.description
       );
-      await tx.wait();
-      alert('✅ Ponuka bola úspešne podaná!');
+      const bidReceipt = await tx.wait();
+      alert(`✅ Ponuka bola úspešne podaná!\n\n🔗 Transakcia: ${explorerUrl.tx(bidReceipt.transactionHash)}`);
       setBidForm({ tenderId: '', priceEUR: '', deliveryTime: '', description: '' });
       setLoading(false);
     } catch (error) {
@@ -734,8 +736,8 @@ export default function MicroTenderApp() {
     try {
       setLoading(true);
       const tx = await contract.castVote(tenderId, bidId);
-      await tx.wait();
-      alert('✅ Hlas bol prijatý!');
+      const voteReceipt = await tx.wait();
+      alert(`✅ Hlas bol prijatý!\n\n🔗 Transakcia: ${explorerUrl.tx(voteReceipt.transactionHash)}`);
       getTenderDetails(tenderId);
       setLoading(false);
     } catch (error) {
@@ -756,8 +758,8 @@ export default function MicroTenderApp() {
     try {
       setLoading(true);
       const tx = await contract.startVoting(tenderId, days);
-      await tx.wait();
-      alert('✅ Hlasovanie bolo spustené!');
+      const votingReceipt = await tx.wait();
+      alert(`✅ Hlasovanie bolo spustené!\n\n🔗 Transakcia: ${explorerUrl.tx(votingReceipt.transactionHash)}`);
       getTenderDetails(tenderId);
       setLoading(false);
     } catch (error) {

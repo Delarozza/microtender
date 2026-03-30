@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Shield, CheckCircle, XCircle, UserMinus } from 'lucide-react';
+import { Shield, CheckCircle, XCircle, UserMinus, ExternalLink } from 'lucide-react';
+import { explorerUrl, shortAddress } from '../../utils/explorer';
 
 const STATUS_LABELS = {
   0: 'Čaká na schválenie',
@@ -58,10 +59,14 @@ export function VendorApproval({
                       <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{app.companyName}</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            Adresa: {String(app.applicant).slice(0, 6)}...
-                            {String(app.applicant).slice(-4)}
-                          </p>
+                          <a
+                            href={explorerUrl.address(app.applicant)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-purple-600 dark:text-purple-400 hover:underline mt-1 inline-flex items-center gap-1"
+                          >
+                            {shortAddress(app.applicant)} <ExternalLink size={12} />
+                          </a>
                           <p className="text-xs text-gray-400 mt-1">
                             Podané:{' '}
                             {new Date(parseInt(app.submittedAt, 10) * 1000).toLocaleDateString(
@@ -132,9 +137,14 @@ export function VendorApproval({
                     >
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{app.companyName}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {String(app.applicant).slice(0, 6)}...{String(app.applicant).slice(-4)}
-                        </p>
+                        <a
+                          href={explorerUrl.address(app.applicant)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-purple-600 dark:text-purple-400 hover:underline inline-flex items-center gap-1"
+                        >
+                          {shortAddress(app.applicant)} <ExternalLink size={10} />
+                        </a>
                       </div>
                       <button
                         type="button"

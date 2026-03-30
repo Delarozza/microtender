@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, ThumbsUp } from 'lucide-react';
+import { FileText, ThumbsUp, ExternalLink, Shield } from 'lucide-react';
+import { explorerUrl, shortAddress } from '../../utils/explorer';
 
 const ETH_TO_EUR = 1800;
 
@@ -73,6 +74,17 @@ export function TenderDetail({
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{selectedTender.title}</h2>
             <p className="text-gray-600 dark:text-gray-400">Kategória: {selectedTender.category}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Vytvoril:</span>
+              <a
+                href={explorerUrl.address(selectedTender.creator)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-mono"
+              >
+                {shortAddress(selectedTender.creator)} ↗
+              </a>
+            </div>
             {selectedTender.description && (
               <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                 <p className="text-gray-700 dark:text-gray-300 text-sm">{selectedTender.description}</p>
@@ -163,9 +175,14 @@ export function TenderDetail({
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Dodanie: {bid.deliveryTime} dní • #{bid.id}</p>
                     {bid.description && <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{bid.description}</p>}
-                    <p className="text-xs text-gray-400 mt-1">
-                      {bid.vendor?.slice?.(0, 6)}...{bid.vendor?.slice?.(-4)}
-                    </p>
+                    <a
+                      href={explorerUrl.address(bid.vendor)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-mono mt-1 inline-flex items-center gap-1"
+                    >
+                      {shortAddress(bid.vendor)} <ExternalLink size={10} />
+                    </a>
                     {canVote && votes > 0 && (
                       <div className="flex items-center gap-1.5 mt-2 text-xs text-gray-500 dark:text-gray-400">
                         <ThumbsUp size={12} />
@@ -239,6 +256,45 @@ export function TenderDetail({
             </button>
           </div>
         )}
+
+        {/* Transparency / on-chain verification */}
+        <div className="mt-8 p-5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+          <div className="flex items-center gap-2 mb-3">
+            <Shield size={18} className="text-emerald-600 dark:text-emerald-400" />
+            <h3 className="text-sm font-semibold text-emerald-900 dark:text-emerald-300">Overenie na blockchaine</h3>
+          </div>
+          <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-3">
+            Všetky údaje tohto tendra sú uložené na blockchaine Polygon Amoy a sú verejne overiteľné.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={explorerUrl.contract()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition-colors"
+            >
+              <ExternalLink size={12} /> Smart kontrakt
+            </a>
+            <a
+              href={explorerUrl.address(selectedTender.creator)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition-colors"
+            >
+              <ExternalLink size={12} /> Tvorca tendra
+            </a>
+            {selectedTender.ipfsCID && (
+              <a
+                href={getIPFSUrl ? getIPFSUrl(selectedTender.ipfsCID) : '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition-colors"
+              >
+                <ExternalLink size={12} /> Dokument (IPFS)
+              </a>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
