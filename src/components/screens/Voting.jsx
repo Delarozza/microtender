@@ -78,24 +78,24 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
   return (
     <div className="p-4 md:p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Hlasovanie</h1>
-        <p className="text-gray-600">Hlasujte o najlepších ponukách</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Hlasovanie</h1>
+        <p className="text-gray-600 dark:text-gray-400">Hlasujte o najlepších ponukách</p>
       </div>
 
       {tendersWithBids.length === 0 ? (
-        <div className="bg-white rounded-lg p-12 text-center border border-gray-200">
-          <p className="text-gray-500">Momentálne nie sú žiadne tendery na hlasovanie</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-12 text-center border border-gray-200 dark:border-gray-700">
+          <p className="text-gray-500 dark:text-gray-400">Momentálne nie sú žiadne tendery na hlasovanie</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
           {tendersWithBids.map((tender) => (
-            <div key={tender.id} className="bg-white rounded-lg p-6 border border-gray-200">
+            <div key={tender.id} className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-start gap-4 mb-6">
                 <div className="text-4xl">{getCategoryIcon(tender.category)}</div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{tender.title}</h3>
-                  {tender.description && <p className="text-gray-600 mb-2">{tender.description}</p>}
-                  <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{tender.title}</h3>
+                  {tender.description && <p className="text-gray-600 dark:text-gray-400 mb-2">{tender.description}</p>}
+                  <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
                     <span>Rozpočet: {(tender.maxBudget * ETH_TO_EUR).toFixed(2)} €</span>
                     <span>{tender.offers.length} ponúk</span>
                     <span>
@@ -114,20 +114,20 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
                   const votes = voteCounts[`${tender.id}-${offer.id}`] ?? 0;
                   const hasVoted = hasVotedMap[tender.id];
                   return (
-                    <div key={offer.id} className="border border-gray-200 rounded-lg p-4">
+                    <div key={offer.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold text-gray-900 truncate max-w-[200px]">
+                        <h4 className="font-semibold text-gray-900 dark:text-white truncate max-w-[200px]">
                           {offer.vendor?.slice?.(0, 6)}...{offer.vendor?.slice?.(-4)}
                         </h4>
-                        <span className="text-lg font-bold text-blue-600">
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
                           {(offer.price * ETH_TO_EUR).toFixed(2)} €
                         </span>
                       </div>
                       {offer.description && (
-                        <p className="text-sm text-gray-600 mb-3">{offer.description}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{offer.description}</p>
                       )}
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                           <ThumbsUp size={16} />
                           <span>
                             {votes} {votes === 1 ? 'hlas' : 'hlasov'}
@@ -139,7 +139,7 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
                           disabled={loading || hasVoted}
                           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                             hasVoted || loading
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                               : 'bg-blue-600 text-white hover:bg-blue-700'
                           }`}
                         >
@@ -155,9 +155,9 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
         </div>
       )}
 
-      <div className="bg-blue-50 rounded-lg p-6 border border-blue-200 mt-6">
-        <h3 className="font-semibold text-blue-900 mb-2">ℹ️ Informácie o hlasovaní</h3>
-        <p className="text-sm text-blue-800">
+      <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-6 border border-blue-200 dark:border-blue-800 mt-6">
+        <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">ℹ️ Informácie o hlasovaní</h3>
+        <p className="text-sm text-blue-800 dark:text-blue-300">
           Môžete hlasovať iba raz za tender. Ponuka s najväčším počtom hlasov vyhrá.
         </p>
       </div>

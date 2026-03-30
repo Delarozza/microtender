@@ -20,13 +20,13 @@ export function VendorRegistration({
   if (!account) {
     return (
       <div className="p-4 md:p-8">
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center max-w-md mx-auto">
+        <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-6 text-center max-w-md mx-auto">
           <UserPlus size={48} className="text-amber-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Pripojte peňaženku</h2>
-          <p className="text-gray-600 mb-4">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pripojte peňaženku</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
             Pre registráciu ako dodávateľ musíte pripojiť svoju peňaženku.
           </p>
-          <p className="text-sm text-gray-500">Použite tlačidlo v hlavičke na pripojenie.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Použite tlačidlo v hlavičke na pripojenie.</p>
         </div>
       </div>
     );
@@ -35,10 +35,10 @@ export function VendorRegistration({
   if (isRegisteredVendor) {
     return (
       <div className="p-4 md:p-8">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6 max-w-md mx-auto">
+        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-6 max-w-md mx-auto">
           <ShoppingBag size={48} className="text-green-600 mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Už ste dodávateľ</h2>
-          <p className="text-gray-600 mb-4">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Už ste dodávateľ</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
             Vaša žiadosť bola schválená. Môžete podávať ponuky na aktívne tendery.
           </p>
           <button
@@ -65,14 +65,14 @@ export function VendorRegistration({
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg p-6 border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <UserPlus size={24} className="text-blue-600" />
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+              <UserPlus size={24} className="text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Registrácia ako dodávateľ</h1>
-              <p className="text-gray-600 text-sm">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Registrácia ako dodávateľ</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
                 Vyplňte formulár a odošlite žiadosť. Študentská rada ju posúdi a schváli alebo zamietne.
               </p>
             </div>
@@ -90,14 +90,14 @@ export function VendorRegistration({
           )}
 
           {statusNum === 2 && (
-            <p className="text-gray-600 text-sm mb-4">
+            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
               Vaša predchádzajúca žiadosť bola zamietnutá. Môžete podať novú žiadosť nižšie.
             </p>
           )}
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Názov spoločnosti <span className="text-red-500">*</span>
               </label>
               <input
@@ -107,13 +107,13 @@ export function VendorRegistration({
                   setVendorApplicationForm({ ...vendorApplicationForm, companyName: e.target.value })
                 }
                 placeholder="Napríklad: ABC Supplies s.r.o."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 disabled={hasPendingApplication}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Kontaktné informácie <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -123,13 +123,13 @@ export function VendorRegistration({
                 }
                 placeholder="Email, telefón, adresa..."
                 rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 disabled={hasPendingApplication}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Popis spoločnosti a skúsenosti
               </label>
               <textarea
@@ -142,7 +142,7 @@ export function VendorRegistration({
                 }
                 placeholder="Stručný popis, oblasť pôsobenia, skúsenosti..."
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 disabled={hasPendingApplication}
               />
             </div>

@@ -32,19 +32,19 @@ export function TenderDetail({
       <button
         type="button"
         onClick={onBack}
-        className="text-blue-600 hover:text-blue-700 font-medium mb-6"
+        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium mb-6"
       >
         ← Späť na zoznam
       </button>
 
-      <div className="bg-white rounded-lg p-6 border border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedTender.title}</h2>
-            <p className="text-gray-600">Kategória: {selectedTender.category}</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{selectedTender.title}</h2>
+            <p className="text-gray-600 dark:text-gray-400">Kategória: {selectedTender.category}</p>
             {selectedTender.description && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-xl">
-                <p className="text-gray-700 text-sm">{selectedTender.description}</p>
+              <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                <p className="text-gray-700 dark:text-gray-300 text-sm">{selectedTender.description}</p>
               </div>
             )}
             {selectedTender.ipfsCID && (
@@ -77,30 +77,30 @@ export function TenderDetail({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-gray-500 text-sm mb-1">Maximálny rozpočet</p>
-            <p className="text-2xl font-bold text-gray-900">
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Maximálny rozpočet</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {(selectedTender.maxBudget * ETH_TO_EUR).toFixed(2)} €
             </p>
           </div>
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-gray-500 text-sm mb-1">Počet ponúk</p>
-            <p className="text-2xl font-bold text-gray-900">{bids.length}</p>
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Počet ponúk</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{bids.length}</p>
           </div>
         </div>
 
         {canStartVoting && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl flex flex-wrap items-center gap-4">
-            <span className="text-blue-800 font-medium">Predčasne spustiť hlasovanie:</span>
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl flex flex-wrap items-center gap-4">
+            <span className="text-blue-800 dark:text-blue-300 font-medium">Predčasne spustiť hlasovanie:</span>
             <input
               type="number"
               min={1}
               max={14}
               value={votingDaysInput}
               onChange={(e) => setVotingDaysInput(e.target.value)}
-              className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center"
+              className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
-            <span className="text-gray-600 text-sm">dní na hlasovanie</span>
+            <span className="text-gray-600 dark:text-gray-400 text-sm">dní na hlasovanie</span>
             <button
               type="button"
               onClick={() => onStartVoting(selectedTender.id, votingDaysInput)}
@@ -112,9 +112,9 @@ export function TenderDetail({
           </div>
         )}
 
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Ponuky</h3>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Ponuky</h3>
         {bids.length === 0 ? (
-          <p className="text-gray-500 py-8 text-center bg-gray-50 rounded-xl">
+          <p className="text-gray-500 dark:text-gray-400 py-8 text-center bg-gray-50 dark:bg-gray-700/50 rounded-xl">
             Zatiaľ neboli podané žiadne ponuky
           </p>
         ) : (
@@ -122,14 +122,14 @@ export function TenderDetail({
             {bids.map((bid) => (
               <div
                 key={bid.id}
-                className="border border-gray-200 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4"
+                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4"
               >
                 <div>
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-blue-600 dark:text-blue-400">
                     {(bid.price * ETH_TO_EUR).toFixed(2)} €
                   </p>
-                  <p className="text-sm text-gray-500">Dodanie: {bid.deliveryTime} dní • #{bid.id}</p>
-                  {bid.description && <p className="text-sm text-gray-600 mt-2">{bid.description}</p>}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Dodanie: {bid.deliveryTime} dní • #{bid.id}</p>
+                  {bid.description && <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{bid.description}</p>}
                   <p className="text-xs text-gray-400 mt-1">
                     {bid.vendor?.slice?.(0, 6)}...{bid.vendor?.slice?.(-4)}
                   </p>
@@ -151,37 +151,37 @@ export function TenderDetail({
         )}
 
         {canSubmitBid && (
-          <div className="mt-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Podať ponuku</h3>
+          <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Podať ponuku</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cena (€)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cena (€)</label>
                 <input
                   type="text"
                   value={bidForm.priceEUR}
                   onChange={(e) => setBidForm({ ...bidForm, priceEUR: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dodanie (dni)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dodanie (dni)</label>
                 <input
                   type="number"
                   value={bidForm.deliveryTime}
                   onChange={(e) => setBidForm({ ...bidForm, deliveryTime: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="7"
                 />
               </div>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Popis</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Popis</label>
               <textarea
                 value={bidForm.description}
                 onChange={(e) => setBidForm({ ...bidForm, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="Popis ponuky..."
               />
             </div>

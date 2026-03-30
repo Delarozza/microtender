@@ -17,39 +17,39 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
   ];
 
   const colors = {
-    blue: 'bg-blue-100 text-blue-600',
-    yellow: 'bg-yellow-100 text-yellow-600',
-    green: 'bg-green-100 text-green-600',
-    purple: 'bg-purple-100 text-purple-600',
+    blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400',
+    yellow: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400',
+    green: 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400',
+    purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400',
   };
 
   return (
     <div className="p-4 md:p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Prehľad tenderov v systéme</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard</h1>
+        <p className="text-gray-600 dark:text-gray-400">Prehľad tenderov v systéme</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className="bg-white rounded-lg p-6 border border-gray-200">
+            <div key={index} className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-lg ${colors[stat.color]}`}>
                   <Icon size={24} />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
-              <p className="text-sm text-gray-600">{stat.label}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{stat.value}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</p>
             </div>
           );
         })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg p-6 border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Rýchle akcie</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Rýchle akcie</h2>
           <div className="space-y-3">
             {account && isMember && (
               <>
@@ -64,7 +64,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
                 <button
                   type="button"
                   onClick={() => onNavigate('Moje tendery')}
-                  className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <FileText size={20} />
                   <span>Zobraziť moje tendery</span>
@@ -72,7 +72,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
                 <button
                   type="button"
                   onClick={() => onNavigate('Hlasovanie')}
-                  className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <CheckCircle size={20} />
                   <span>Hlasovať o ponukách</span>
@@ -80,7 +80,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
                 <button
                   type="button"
                   onClick={() => onNavigate('Žiadosti dodávateľov')}
-                  className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <Shield size={20} />
                   <span>Schváliť žiadosti dodávateľov</span>
@@ -100,7 +100,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
             <button
               type="button"
               onClick={() => onNavigate('Všetky tendery')}
-              className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <FileText size={20} />
               <span>Všetky tendery</span>
@@ -108,21 +108,21 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-6 border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Posledné tendery</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Posledné tendery</h2>
           <div className="space-y-4">
             {tenders.length === 0 ? (
-              <p className="text-gray-500 text-sm">Zatiaľ žiadne tendery</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Zatiaľ žiadne tendery</p>
             ) : (
               tenders.slice(0, 5).map((tender) => (
                 <div
                   key={tender.id}
-                  className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-0"
+                  className="flex items-start gap-3 pb-4 border-b border-gray-100 dark:border-gray-700 last:border-0"
                 >
                   <div className="text-2xl">{getCategoryIcon(tender.category)}</div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{tender.title}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{tender.title}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {tender.status} • {(tender.maxBudget * ETH_TO_EUR).toFixed(2)} €
                     </p>
                   </div>
