@@ -107,12 +107,12 @@ export function TenderDetail({
           <span
             className={`px-4 py-2 rounded-full text-sm font-medium ${
               selectedTender.status === 'Aktívny'
-                ? 'bg-green-100 text-green-700'
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
                 : selectedTender.status === 'Hlasovanie'
-                ? 'bg-yellow-100 text-yellow-700'
+                ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400'
                 : selectedTender.status === 'Ukončený'
-                ? 'bg-blue-100 text-blue-700'
-                : 'bg-gray-100 text-gray-700'
+                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
+                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
             }`}
           >
             {selectedTender.status}
@@ -258,12 +258,12 @@ export function TenderDetail({
         )}
 
         {/* Transparency / on-chain verification */}
-        <div className="mt-8 p-5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+        <div className="mt-8 p-5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-xl">
           <div className="flex items-center gap-2 mb-3">
-            <Shield size={18} className="text-emerald-600 dark:text-emerald-400" />
-            <h3 className="text-sm font-semibold text-emerald-900 dark:text-emerald-300">Overenie na blockchaine</h3>
+            <Shield size={18} className="text-purple-600 dark:text-purple-400" />
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Overenie na blockchaine</h3>
           </div>
-          <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-3">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
             Všetky údaje tohto tendra sú uložené na blockchaine Polygon Amoy a sú verejne overiteľné.
           </p>
           <div className="flex flex-wrap gap-3">
@@ -271,7 +271,7 @@ export function TenderDetail({
               href={explorerUrl.contract()}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
             >
               <ExternalLink size={12} /> Smart kontrakt
             </a>
@@ -279,7 +279,7 @@ export function TenderDetail({
               href={explorerUrl.address(selectedTender.creator)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
             >
               <ExternalLink size={12} /> Tvorca tendra
             </a>
@@ -288,7 +288,7 @@ export function TenderDetail({
                 href={getIPFSUrl ? getIPFSUrl(selectedTender.ipfsCID) : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
               >
                 <ExternalLink size={12} /> Dokument (IPFS)
               </a>
