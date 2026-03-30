@@ -11,6 +11,7 @@ import { AllTenders } from './components/screens/AllTenders';
 import { TenderDetail } from './components/screens/TenderDetail';
 import { VendorRegistration } from './components/screens/VendorRegistration';
 import { VendorApproval } from './components/screens/VendorApproval';
+import { Settings } from './components/screens/Settings';
 
 const CONTRACT_ADDRESS = "0xC5EA6607B52EBBbFFBac26b9b68594357720ab75";
 const CHAIN_ID_AMOY = 80002; // Polygon Amoy testnet
@@ -38,6 +39,13 @@ const USER_ROLES = {
 
 // Približný kurz pre konverziu (EUR)
 const ETH_TO_EUR = 1800;
+
+function initTheme() {
+  if (typeof window !== 'undefined' && localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.add('dark');
+  }
+}
+initTheme();
 
 export default function MicroTenderApp() {
   const [account, setAccount] = useState('');
@@ -775,7 +783,7 @@ export default function MicroTenderApp() {
   };
 
   return (
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
         <div className="hidden md:block">
           <Sidebar
             activeItem={activeScreen}
@@ -813,7 +821,7 @@ export default function MicroTenderApp() {
             isMember={isMember}
             isRegisteredVendor={isRegisteredVendor}
           />
-          <main className="flex-1 overflow-y-auto bg-gray-50">
+          <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
             {activeScreen === 'Dashboard' && (
               <Dashboard
                 onNavigate={handleNavigate}
@@ -916,19 +924,25 @@ export default function MicroTenderApp() {
               </div>
             )}
             {activeScreen === 'Nastavenia' && (
-              <div className="p-4 md:p-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Nastavenia</h1>
-                <p className="text-gray-600 mt-2">Coming Soon</p>
-              </div>
+              <Settings
+                account={account}
+                isMember={isMember}
+                userRole={userRole}
+                isRegisteredVendor={isRegisteredVendor}
+                myApplicationStatus={myApplicationStatus}
+                contract={contract}
+                loading={loading}
+                setLoading={setLoading}
+              />
             )}
           </main>
         </div>
         {loading && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-xl">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-xl">
               <div className="flex flex-col items-center space-y-4">
                 <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-lg font-medium text-gray-700">Spracovanie transakcie...</p>
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-200">Spracovanie transakcie...</p>
               </div>
             </div>
           </div>

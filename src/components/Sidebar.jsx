@@ -25,8 +25,8 @@ export function Sidebar({ activeItem, onNavigate, account, isMember, isRegistere
   });
 
   return (
-    <div className="w-64 h-full bg-[#2c3e50] flex flex-col">
-      <div className="p-6 border-b border-[#34495e]">
+    <div className="w-64 h-full bg-[#2c3e50] dark:bg-gray-950 flex flex-col">
+      <div className="p-6 border-b border-[#34495e] dark:border-gray-800">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
             <BarChart3 size={20} className="text-white" />
@@ -51,7 +51,7 @@ export function Sidebar({ activeItem, onNavigate, account, isMember, isRegistere
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${
                     isActive
                       ? 'bg-purple-600 text-white font-medium'
-                      : 'text-gray-300 hover:bg-[#34495e]'
+                      : 'text-gray-300 hover:bg-[#34495e] dark:hover:bg-gray-800'
                   }`}
                 >
                   <Icon size={20} className="flex-shrink-0" />
@@ -63,7 +63,7 @@ export function Sidebar({ activeItem, onNavigate, account, isMember, isRegistere
         </ul>
       </nav>
 
-      <div className="p-4 border-t border-[#34495e]">
+      <div className="p-4 border-t border-[#34495e] dark:border-gray-800">
         <div className="flex items-center gap-3 px-4 py-3">
           <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
             <span className="text-white font-semibold text-sm">
