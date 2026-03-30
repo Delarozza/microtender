@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, ThumbsUp } from 'lucide-react';
 
 const ETH_TO_EUR = 1800;
@@ -10,6 +10,7 @@ export function TenderDetail({
   account,
   isMember,
   isRegisteredVendor,
+  contract,
   onBack,
   onStartVoting,
   votingDaysInput,
@@ -20,6 +21,36 @@ export function TenderDetail({
   onSubmitBid,
   getIPFSUrl,
 }) {
+  const [hasVoted, setHasVoted] = useState(false);
+  const [voteCounts, setVoteCounts] = useState({});
+
+  useEffect(() => {
+    if (!contract || !account || !selectedTender) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const voted = await contract.hasUserVoted(selectedTender.id, account);
+        if (!cancelled) setHasVoted(voted);
+      } catch (_) {}
+
+      if (selectedTender.statusIndex === 2 && bids.length > 0) {
+        const counts = {};
+        for (const bid of bids) {
+          try {
+            const c = await contract.getVoteCount(selectedTender.id, bid.id);
+            counts[bid.id] = c.toNumber ? c.toNumber() : Number(c);
+          } catch (_) {
+            counts[bid.id] = 0;
+          }
+        }
+        if (!cancelled) setVoteCounts(counts);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [contract, account, selectedTender, bids]);
+
   if (!selectedTender) return null;
 
   const isCreator = account && selectedTender.creator && account.toLowerCase() === selectedTender.creator.toLowerCase();
@@ -119,34 +150,47 @@ export function TenderDetail({
           </p>
         ) : (
           <div className="space-y-4">
-            {bids.map((bid) => (
-              <div
-                key={bid.id}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4"
-              >
-                <div>
-                  <p className="font-semibold text-blue-600 dark:text-blue-400">
-                    {(bid.price * ETH_TO_EUR).toFixed(2)} €
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Dodanie: {bid.deliveryTime} dní • #{bid.id}</p>
-                  {bid.description && <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{bid.description}</p>}
-                  <p className="text-xs text-gray-400 mt-1">
-                    {bid.vendor?.slice?.(0, 6)}...{bid.vendor?.slice?.(-4)}
-                  </p>
+            {bids.map((bid) => {
+              const votes = voteCounts[bid.id] ?? 0;
+              return (
+                <div
+                  key={bid.id}
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4"
+                >
+                  <div>
+                    <p className="font-semibold text-blue-600 dark:text-blue-400">
+                      {(bid.price * ETH_TO_EUR).toFixed(2)} €
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Dodanie: {bid.deliveryTime} dní • #{bid.id}</p>
+                    {bid.description && <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{bid.description}</p>}
+                    <p className="text-xs text-gray-400 mt-1">
+                      {bid.vendor?.slice?.(0, 6)}...{bid.vendor?.slice?.(-4)}
+                    </p>
+                    {canVote && votes > 0 && (
+                      <div className="flex items-center gap-1.5 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        <ThumbsUp size={12} />
+                        <span>{votes} {votes === 1 ? 'hlas' : 'hlasov'}</span>
+                      </div>
+                    )}
+                  </div>
+                  {canVote && (
+                    <button
+                      type="button"
+                      onClick={() => onCastVote(selectedTender.id, bid.id)}
+                      disabled={loading || hasVoted}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
+                        hasVoted
+                          ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                          : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
+                      }`}
+                    >
+                      <ThumbsUp size={16} />
+                      {hasVoted ? 'Hlasovali ste' : 'Hlasovať'}
+                    </button>
+                  )}
                 </div>
-                {canVote && (
-                  <button
-                    type="button"
-                    onClick={() => onCastVote(selectedTender.id, bid.id)}
-                    disabled={loading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50 flex items-center gap-2"
-                  >
-                    <ThumbsUp size={16} />
-                    Hlasovať
-                  </button>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

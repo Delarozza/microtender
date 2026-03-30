@@ -902,6 +902,7 @@ export default function MicroTenderApp() {
                 account={account}
                 isMember={isMember}
                 isRegisteredVendor={isRegisteredVendor}
+                contract={contract}
                 onBack={() => handleNavigate('Všetky tendery')}
                 onStartVoting={startVoting}
                 votingDaysInput={votingDaysInput}
