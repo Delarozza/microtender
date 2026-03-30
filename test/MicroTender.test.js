@@ -201,19 +201,22 @@ describe("MicroTender", function () {
   });
 
   describe("Vendor Registration", function () {
-    it("Should allow anyone to register as vendor", async function () {
-      await expect(microTender.connect(vendor).registerAsVendor())
-        .to.emit(microTender, "VendorRegistered")
-        .withArgs(vendor.address);
+    it("Should allow anyone to submit vendor application and be approved", async function () {
+      await expect(
+        microTender.connect(vendor).submitVendorApplication("Firma s.r.o.", "info@firma.sk", "Dodávateľ IT")
+      ).to.emit(microTender, "VendorApplicationSubmitted");
+
+      await expect(microTender.connect(member).approveVendorApplication(1))
+        .to.emit(microTender, "VendorApplicationApproved");
 
       expect(await microTender.isRegisteredVendor(vendor.address)).to.be.true;
     });
 
-    it("Should not allow double registration", async function () {
-      await microTender.connect(vendor).registerAsVendor();
+    it("Should not allow double application while pending", async function () {
+      await microTender.connect(vendor).submitVendorApplication("Firma s.r.o.", "info@firma.sk", "Opis");
       await expect(
-        microTender.connect(vendor).registerAsVendor()
-      ).to.be.revertedWith("Already registered");
+        microTender.connect(vendor).submitVendorApplication("Firma s.r.o.", "info@firma.sk", "Opis")
+      ).to.be.reverted;
     });
 
     it("Should return false for unregistered vendor", async function () {
@@ -248,8 +251,9 @@ describe("MicroTender", function () {
       tenderId = parsedEvent.args.tenderId;
       await microTender.connect(member).publishTender(tenderId, 7);
 
-      // Регистрируем vendor
-      await microTender.connect(vendor).registerAsVendor();
+      // Регистрируем vendor через application flow
+      await microTender.connect(vendor).submitVendorApplication("Firma", "info@f.sk", "Opis");
+      await microTender.connect(member).approveVendorApplication(1);
     });
 
     it("Should allow registered vendor to submit bid", async function () {
@@ -386,9 +390,11 @@ describe("MicroTender", function () {
       tenderId = parsedEvent.args.tenderId;
       await microTender.connect(member).publishTender(tenderId, 7);
 
-      // Регистрируем vendors и подаем предложения
-      await microTender.connect(vendor).registerAsVendor();
-      await microTender.connect(vendor2).registerAsVendor();
+      // Регистрируем vendors через application flow
+      await microTender.connect(vendor).submitVendorApplication("Firma A", "a@f.sk", "Opis");
+      await microTender.connect(member).approveVendorApplication(1);
+      await microTender.connect(vendor2).submitVendorApplication("Firma B", "b@f.sk", "Opis");
+      await microTender.connect(member).approveVendorApplication(2);
 
       const tx1 = await microTender.connect(vendor).submitBid(
         tenderId,
@@ -442,7 +448,6 @@ describe("MicroTender", function () {
     });
 
     it("Should not allow non-member to vote", async function () {
-      // Проверяем, что vendor не имеет установленной роли
       const hasVendorRole = await microTender.hasRole(vendor.address);
       expect(hasVendorRole).to.be.false;
       
@@ -460,7 +465,6 @@ describe("MicroTender", function () {
 
     it("Should not allow voting on non-voting tender", async function () {
       const maxBudget = ethers.parseEther("1.0");
-      // Создаем новый tender в статусе Open
       const tx = await microTender.connect(member).createTender(
         "Open Tender",
         "Description",
@@ -487,7 +491,6 @@ describe("MicroTender", function () {
     });
 
     it("Should accumulate votes correctly", async function () {
-      // Назначаем еще одного member
       await microTender.grantRole(other.address, 0);
 
       await microTender.connect(member).castVote(tenderId, bidId1);
@@ -526,9 +529,11 @@ describe("MicroTender", function () {
       tenderId = parsedEvent.args.tenderId;
       await microTender.connect(member).publishTender(tenderId, 7);
 
-      // Регистрируем vendors и подаем предложения
-      await microTender.connect(vendor).registerAsVendor();
-      await microTender.connect(vendor2).registerAsVendor();
+      // Регистрируем vendors через application flow
+      await microTender.connect(vendor).submitVendorApplication("Firma A", "a@f.sk", "Opis");
+      await microTender.connect(member).approveVendorApplication(1);
+      await microTender.connect(vendor2).submitVendorApplication("Firma B", "b@f.sk", "Opis");
+      await microTender.connect(member).approveVendorApplication(2);
 
       const tx1 = await microTender.connect(vendor).submitBid(
         tenderId,
@@ -571,8 +576,11 @@ describe("MicroTender", function () {
     });
 
     it("Should allow creator to finalize tender", async function () {
-      // Голосуем за bidId1
       await microTender.connect(member).castVote(tenderId, bidId1);
+
+      // Advance time past the 3-day voting deadline
+      await hre.network.provider.send("evm_increaseTime", [3 * 24 * 60 * 60 + 1]);
+      await hre.network.provider.send("evm_mine");
 
       await expect(
         microTender.connect(member).finalizeTender(tenderId)
@@ -586,24 +594,32 @@ describe("MicroTender", function () {
 
     it("Should not allow non-creator to finalize", async function () {
       await microTender.connect(member).castVote(tenderId, bidId1);
+
+      await hre.network.provider.send("evm_increaseTime", [3 * 24 * 60 * 60 + 1]);
+      await hre.network.provider.send("evm_mine");
+
       await expect(
         microTender.connect(other).finalizeTender(tenderId)
       ).to.be.revertedWith("Only creator");
     });
 
     it("Should not allow finalization without votes", async function () {
+      await hre.network.provider.send("evm_increaseTime", [3 * 24 * 60 * 60 + 1]);
+      await hre.network.provider.send("evm_mine");
+
       await expect(
         microTender.connect(member).finalizeTender(tenderId)
       ).to.be.revertedWith("No votes");
     });
 
     it("Should select bid with most votes", async function () {
-      // Назначаем еще одного member
       await microTender.grantRole(other.address, 0);
 
-      // Голосуем: bidId1 получает 2 голоса, bidId2 получает 1 голос
       await microTender.connect(member).castVote(tenderId, bidId1);
       await microTender.connect(other).castVote(tenderId, bidId1);
+
+      await hre.network.provider.send("evm_increaseTime", [3 * 24 * 60 * 60 + 1]);
+      await hre.network.provider.send("evm_mine");
 
       await microTender.connect(member).finalizeTender(tenderId);
 

@@ -74,7 +74,7 @@ export function VendorApproval({
                             )}
                           </p>
                         </div>
-                        <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
+                        <span className="px-3 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 rounded-full text-sm font-medium">
                           {STATUS_LABELS[toStatus(app.status)]}
                         </span>
                       </div>
@@ -150,7 +150,7 @@ export function VendorApproval({
                         type="button"
                         onClick={() => onRevoke(app.applicant)}
                         disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors disabled:opacity-50"
                       >
                         <UserMinus size={16} />
                         Odvolať status

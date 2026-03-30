@@ -29,7 +29,7 @@ export function CreateTender({
   if (!isMember) {
     return (
       <div className="p-4 md:p-8 max-w-3xl mx-auto">
-        <p className="text-red-600">Iba členovia rady môžu vytvárať tendery.</p>
+        <p className="text-red-600 dark:text-red-400">Iba členovia rady môžu vytvárať tendery.</p>
       </div>
     );
   }
@@ -86,11 +86,11 @@ export function CreateTender({
                 onChange={(e) => setCreateForm({ ...createForm, category: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="tlac">🖨️ Tlač</option>
-                <option value="jedlo">🍴 Jedlo</option>
-                <option value="IT">💻 IT</option>
-                <option value="Kancelárske potreby">📎 Kancelárske potreby</option>
-                <option value="ine">📦 Iné</option>
+                <option value="tlac" className="dark:bg-gray-700">🖨️ Tlač</option>
+                <option value="jedlo" className="dark:bg-gray-700">🍴 Jedlo</option>
+                <option value="IT" className="dark:bg-gray-700">💻 IT</option>
+                <option value="Kancelárske potreby" className="dark:bg-gray-700">📎 Kancelárske potreby</option>
+                <option value="ine" className="dark:bg-gray-700">📦 Iné</option>
               </select>
             </div>
           </div>
@@ -115,7 +115,7 @@ export function CreateTender({
             {selectedFile && (
               <div className="mt-2 flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <span className="text-sm text-gray-700 dark:text-gray-300 truncate">{selectedFile.name}</span>
-                <button type="button" onClick={removeFile} className="p-1 text-red-600 hover:bg-red-50 rounded">
+                <button type="button" onClick={removeFile} className="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded">
                   <X size={18} />
                 </button>
               </div>

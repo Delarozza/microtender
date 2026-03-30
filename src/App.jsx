@@ -16,11 +16,11 @@ import { Reports } from './components/screens/Reports';
 import { useNotifications } from './hooks/useNotifications';
 import { explorerUrl } from './utils/explorer';
 
-const CONTRACT_ADDRESS = "0xC5EA6607B52EBBbFFBac26b9b68594357720ab75";
+const CONTRACT_ADDRESS = "0x1F8CCE975c9cB052Bf8c6ED04B2a9c614436C5D0";
 const CHAIN_ID_AMOY = 80002; // Polygon Amoy testnet
 const AMOY_RPC = "https://polygon-amoy.drpc.org";
 const AMOY_RPC_FALLBACK = "https://rpc-amoy.polygon.technology/";
-const CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bidId","type":"uint256"},{"indexed":false,"internalType":"address","name":"vendor","type":"address"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"}],"name":"BidSubmitted","type":"event"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_bidId","type":"uint256"}],"name":"castVote","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_title","type":"string"},{"internalType":"string","name":"_description","type":"string"},{"internalType":"uint256","name":"_maxBudget","type":"uint256"},{"internalType":"string","name":"_category","type":"string"},{"internalType":"string","name":"_ipfsCID","type":"string"}],"name":"createTender","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"finalizeTender","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"fulfillTender","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"uint8","name":"_role","type":"uint8"}],"name":"grantRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_daysUntilDeadline","type":"uint256"}],"name":"publishTender","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"registerAsVendor","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_companyName","type":"string"},{"internalType":"string","name":"_contactInfo","type":"string"},{"internalType":"string","name":"_description","type":"string"}],"name":"submitVendorApplication","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_applicationId","type":"uint256"}],"name":"approveVendorApplication","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_applicationId","type":"uint256"}],"name":"rejectVendorApplication","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_applicationId","type":"uint256"}],"name":"getVendorApplication","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"applicant","type":"address"},{"internalType":"string","name":"companyName","type":"string"},{"internalType":"string","name":"contactInfo","type":"string"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"submittedAt","type":"uint256"},{"internalType":"uint8","name":"status","type":"uint8"}],"internalType":"struct MicroTender.VendorApplication","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_vendor","type":"address"}],"name":"getVendorApplicationByAddress","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"applicant","type":"address"},{"internalType":"string","name":"companyName","type":"string"},{"internalType":"string","name":"contactInfo","type":"string"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"submittedAt","type":"uint256"},{"internalType":"uint8","name":"status","type":"uint8"}],"internalType":"struct MicroTender.VendorApplication","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_vendor","type":"address"}],"name":"getVendorApplicationStatus","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"vendorApplicationCounter","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_votingDays","type":"uint256"}],"name":"startVoting","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_price","type":"uint256"},{"internalType":"uint256","name":"_deliveryTime","type":"uint256"},{"internalType":"string","name":"_description","type":"string"}],"name":"submitBid","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"winningBidId","type":"uint256"}],"name":"TenderCompleted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":true,"internalType":"address","name":"creator","type":"address"},{"indexed":false,"internalType":"string","name":"title","type":"string"}],"name":"TenderCreated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"vendor","type":"address"}],"name":"VendorRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"applicationId","type":"uint256"},{"indexed":true,"internalType":"address","name":"applicant","type":"address"},{"indexed":false,"internalType":"string","name":"companyName","type":"string"}],"name":"VendorApplicationSubmitted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"applicationId","type":"uint256"},{"indexed":true,"internalType":"address","name":"vendor","type":"address"}],"name":"VendorApplicationApproved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"applicationId","type":"uint256"},{"indexed":true,"internalType":"address","name":"applicant","type":"address"}],"name":"VendorApplicationRejected","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bidId","type":"uint256"},{"indexed":false,"internalType":"address","name":"voter","type":"address"}],"name":"VoteCasted","type":"event"},{"inputs":[],"name":"bidCounter","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"getBidCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCurrentTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"getTender","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"creator","type":"address"},{"internalType":"string","name":"title","type":"string"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"maxBudget","type":"uint256"},{"internalType":"string","name":"category","type":"string"},{"internalType":"string","name":"ipfsCID","type":"string"},{"internalType":"uint256","name":"deadline","type":"uint256"},{"internalType":"uint256","name":"votingDeadline","type":"uint256"},{"internalType":"uint8","name":"status","type":"uint8"},{"internalType":"uint256","name":"createdAt","type":"uint256"}],"internalType":"struct MicroTender.Tender","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"getTenderBids","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"tenderId","type":"uint256"},{"internalType":"address","name":"vendor","type":"address"},{"internalType":"uint256","name":"price","type":"uint256"},{"internalType":"uint256","name":"deliveryTime","type":"uint256"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"submittedAt","type":"uint256"}],"internalType":"struct MicroTender.Bid[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserRole","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_bidId","type":"uint256"}],"name":"getVoteCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"getWinningBid","outputs":[{"internalType":"uint256","name":"bidId","type":"uint256"},{"internalType":"address","name":"vendor","type":"address"},{"internalType":"uint256","name":"price","type":"uint256"},{"internalType":"uint256","name":"votes","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"hasRole","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"address","name":"_user","type":"address"}],"name":"hasUserVoted","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"address","name":"","type":"address"}],"name":"hasVoted","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_vendor","type":"address"}],"name":"isRegisteredVendor","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_vendor","type":"address"}],"name":"revokeVendorStatus","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"registeredVendors","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"tenderBids","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"tenderId","type":"uint256"},{"internalType":"address","name":"vendor","type":"address"},{"internalType":"uint256","name":"price","type":"uint256"},{"internalType":"uint256","name":"deliveryTime","type":"uint256"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"submittedAt","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"tenderCounter","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"tenders","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"creator","type":"address"},{"internalType":"string","name":"title","type":"string"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"maxBudget","type":"uint256"},{"internalType":"string","name":"category","type":"string"},{"internalType":"string","name":"ipfsCID","type":"string"},{"internalType":"uint256","name":"deadline","type":"uint256"},{"internalType":"uint256","name":"votingDeadline","type":"uint256"},{"internalType":"uint8","name":"status","type":"uint8"},{"internalType":"uint256","name":"createdAt","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userRoles","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"voteCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_wei","type":"uint256"}],"name":"weiToEther","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"pure","type":"function"}]
+const CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bidId","type":"uint256"},{"indexed":false,"internalType":"address","name":"vendor","type":"address"},{"indexed":false,"internalType":"uint256","name":"price","type":"uint256"}],"name":"BidSubmitted","type":"event"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_bidId","type":"uint256"}],"name":"castVote","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_title","type":"string"},{"internalType":"string","name":"_description","type":"string"},{"internalType":"uint256","name":"_maxBudget","type":"uint256"},{"internalType":"string","name":"_category","type":"string"},{"internalType":"string","name":"_ipfsCID","type":"string"}],"name":"createTender","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"finalizeTender","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"fulfillTender","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"uint8","name":"_role","type":"uint8"}],"name":"grantRole","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_daysUntilDeadline","type":"uint256"}],"name":"publishTender","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"registerAsVendor","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_companyName","type":"string"},{"internalType":"string","name":"_contactInfo","type":"string"},{"internalType":"string","name":"_description","type":"string"}],"name":"submitVendorApplication","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_applicationId","type":"uint256"}],"name":"approveVendorApplication","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_applicationId","type":"uint256"}],"name":"rejectVendorApplication","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_applicationId","type":"uint256"}],"name":"getVendorApplication","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"applicant","type":"address"},{"internalType":"string","name":"companyName","type":"string"},{"internalType":"string","name":"contactInfo","type":"string"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"submittedAt","type":"uint256"},{"internalType":"uint8","name":"status","type":"uint8"}],"internalType":"struct MicroTender.VendorApplication","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_vendor","type":"address"}],"name":"getVendorApplicationByAddress","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"applicant","type":"address"},{"internalType":"string","name":"companyName","type":"string"},{"internalType":"string","name":"contactInfo","type":"string"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"submittedAt","type":"uint256"},{"internalType":"uint8","name":"status","type":"uint8"}],"internalType":"struct MicroTender.VendorApplication","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_vendor","type":"address"}],"name":"getVendorApplicationStatus","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"vendorApplicationCounter","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_votingDays","type":"uint256"}],"name":"startVoting","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_price","type":"uint256"},{"internalType":"uint256","name":"_deliveryTime","type":"uint256"},{"internalType":"string","name":"_description","type":"string"}],"name":"submitBid","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"winningBidId","type":"uint256"}],"name":"TenderCompleted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":true,"internalType":"address","name":"creator","type":"address"},{"indexed":false,"internalType":"string","name":"title","type":"string"}],"name":"TenderCreated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"vendor","type":"address"}],"name":"VendorRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"applicationId","type":"uint256"},{"indexed":true,"internalType":"address","name":"applicant","type":"address"},{"indexed":false,"internalType":"string","name":"companyName","type":"string"}],"name":"VendorApplicationSubmitted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"applicationId","type":"uint256"},{"indexed":true,"internalType":"address","name":"vendor","type":"address"}],"name":"VendorApplicationApproved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"applicationId","type":"uint256"},{"indexed":true,"internalType":"address","name":"applicant","type":"address"}],"name":"VendorApplicationRejected","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"bidId","type":"uint256"},{"indexed":false,"internalType":"address","name":"voter","type":"address"}],"name":"VoteCasted","type":"event"},{"inputs":[],"name":"bidCounter","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"getBidCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCurrentTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"getTender","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"creator","type":"address"},{"internalType":"string","name":"title","type":"string"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"maxBudget","type":"uint256"},{"internalType":"string","name":"category","type":"string"},{"internalType":"string","name":"ipfsCID","type":"string"},{"internalType":"uint256","name":"deadline","type":"uint256"},{"internalType":"uint256","name":"votingDeadline","type":"uint256"},{"internalType":"uint8","name":"status","type":"uint8"},{"internalType":"uint256","name":"createdAt","type":"uint256"}],"internalType":"struct MicroTender.Tender","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"getTenderBids","outputs":[{"components":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"tenderId","type":"uint256"},{"internalType":"address","name":"vendor","type":"address"},{"internalType":"uint256","name":"price","type":"uint256"},{"internalType":"uint256","name":"deliveryTime","type":"uint256"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"submittedAt","type":"uint256"}],"internalType":"struct MicroTender.Bid[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserRole","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"uint256","name":"_bidId","type":"uint256"}],"name":"getVoteCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"getWinningBid","outputs":[{"internalType":"uint256","name":"bidId","type":"uint256"},{"internalType":"address","name":"vendor","type":"address"},{"internalType":"uint256","name":"price","type":"uint256"},{"internalType":"uint256","name":"votes","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"hasRole","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"address","name":"_user","type":"address"}],"name":"hasUserVoted","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"address","name":"","type":"address"}],"name":"hasVoted","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_vendor","type":"address"}],"name":"isRegisteredVendor","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_vendor","type":"address"}],"name":"revokeVendorStatus","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"registeredVendors","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"tenderBids","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"uint256","name":"tenderId","type":"uint256"},{"internalType":"address","name":"vendor","type":"address"},{"internalType":"uint256","name":"price","type":"uint256"},{"internalType":"uint256","name":"deliveryTime","type":"uint256"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"submittedAt","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"tenderCounter","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"tenders","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"address","name":"creator","type":"address"},{"internalType":"string","name":"title","type":"string"},{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"maxBudget","type":"uint256"},{"internalType":"string","name":"category","type":"string"},{"internalType":"string","name":"ipfsCID","type":"string"},{"internalType":"uint256","name":"deadline","type":"uint256"},{"internalType":"uint256","name":"votingDeadline","type":"uint256"},{"internalType":"uint8","name":"status","type":"uint8"},{"internalType":"uint256","name":"createdAt","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userRoles","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"voteCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_wei","type":"uint256"}],"name":"weiToEther","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"}],"name":"cancelTender","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_tenderId","type":"uint256"},{"internalType":"string","name":"_ipfsCID","type":"string"}],"name":"updateTenderIPFSCID","outputs":[],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":true,"internalType":"address","name":"creator","type":"address"}],"name":"TenderCancelled","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tenderId","type":"uint256"},{"indexed":false,"internalType":"string","name":"newCID","type":"string"}],"name":"IPFSCIDUpdated","type":"event"}]
 
 // Názvy stavov
 const STATUS_NAMES = ['Koncept', 'Aktívny', 'Hlasovanie', 'Ukončený', 'Splnený', 'Zrušený'];
@@ -39,6 +39,21 @@ const USER_ROLES = {
   MEMBER: 0,      // Člen rady - môže vytvárať tendry a hlasovať
   ADMIN: 1        // Admin - môže spravovať role
 };
+
+function extractRevertReason(error) {
+  if (error.reason) return error.reason;
+  if (error.error?.reason) return error.error.reason;
+  if (error.error?.data?.message) return error.error.data.message;
+  if (error.data?.message) return error.data.message;
+  const match = error.message?.match(/reason="([^"]+)"/);
+  if (match) return match[1];
+  const revertMatch = error.message?.match(/reverted with reason string '([^']+)'/);
+  if (revertMatch) return revertMatch[1];
+  const revertMatch2 = error.message?.match(/revert(?:ed)?:?\s+(.+?)(?:\s*\(|$)/i);
+  if (revertMatch2) return revertMatch2[1].trim();
+  if (typeof error.message === 'string' && error.message.length < 200) return error.message;
+  return 'Transakcia bola odmietnutá kontraktom. Skontrolujte stav tendra a oprávnenia.';
+}
 
 // Približný kurz pre konverziu (EUR)
 const ETH_TO_EUR = 1800;
@@ -68,9 +83,9 @@ export default function MicroTenderApp() {
     title: '', 
     description: '',
     budget: '', 
-    category: '',
-    daysOpen: '7',      // Koľko dní bude tender otvorený pre ponuky
-    votingDays: '3'     // Koľko dní bude trvať hlasovanie
+    category: 'tlac',
+    daysOpen: '7',
+    votingDays: '3'
   });
   
   // IPFS stav
@@ -408,7 +423,8 @@ export default function MicroTenderApp() {
     try {
       setLoading(true);
       const budgetInETH = parseFloat(createForm.budget) / ETH_TO_EUR;
-      const budgetInWei = window.ethers.utils.parseEther(budgetInETH.toString());
+      const safeETH = budgetInETH.toFixed(18).replace(/0+$/, '').replace(/\.$/, '');
+      const budgetInWei = window.ethers.utils.parseEther(safeETH);
       
       // KROK 1: Vytvoriť draft
       // Используем CID если файл был загружен
@@ -437,7 +453,7 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + error.message);
+      alert('Chyba: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
@@ -462,7 +478,7 @@ export default function MicroTenderApp() {
         title: '', 
         description: '',
         budget: '', 
-        category: '',
+        category: 'tlac',
         daysOpen: '7',
         votingDays: '3'
       });
@@ -474,7 +490,7 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + error.message);
+      alert('Chyba: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
@@ -514,7 +530,7 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba pri načítavaní tendru: ' + error.message);
+      alert('Chyba pri načítavaní tendru: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
@@ -541,7 +557,7 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + error.message);
+      alert('Chyba: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
@@ -629,7 +645,7 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + error.message);
+      alert('Chyba: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
@@ -662,7 +678,7 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + error.message);
+      alert('Chyba: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
@@ -688,7 +704,7 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + error.message);
+      alert('Chyba: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
@@ -707,7 +723,8 @@ export default function MicroTenderApp() {
       }
       
       const priceInETH = parseFloat(bidForm.priceEUR) / ETH_TO_EUR;
-      const priceInWei = window.ethers.utils.parseEther(priceInETH.toString());
+      const safePrice = priceInETH.toFixed(18).replace(/0+$/, '').replace(/\.$/, '');
+      const priceInWei = window.ethers.utils.parseEther(safePrice);
       
       const tx = await contract.submitBid(
         bidForm.tenderId,
@@ -721,7 +738,7 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + error.message);
+      alert('Chyba: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
@@ -742,7 +759,7 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + error.message);
+      alert('Chyba: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
@@ -764,13 +781,117 @@ export default function MicroTenderApp() {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + (error.reason || error.message));
+      alert('Chyba: ' + extractRevertReason(error));
       setLoading(false);
     }
   };
 
-  // Функция переключения режима удалена - режимы определяются автоматически
-  // Для тестирования используйте Remix IDE с разными аккаунтами
+  const cancelTender = async (tenderId) => {
+    if (!contract) return;
+    if (!window.confirm('Naozaj chcete zrušiť tento tender? Táto akcia je nezvratná.')) return;
+    try {
+      setLoading(true);
+      // Pre-check: read the tender and verify conditions
+      const t = await contract.getTender(tenderId);
+      const status = Number(t.status);
+      const creator = t.creator;
+      if (status === 5) { alert('Tento tender je už zrušený.'); setLoading(false); return; }
+      if (status > 1) { alert('Tender nie je možné zrušiť — je v stave „' + STATUS_NAMES[status] + '".'); setLoading(false); return; }
+      if (account && creator.toLowerCase() !== account.toLowerCase()) {
+        alert('Nie ste tvorcom tohto tendra. Zrušiť ho môže iba ' + creator); setLoading(false); return;
+      }
+      const tx = await contract.cancelTender(tenderId);
+      const receipt = await tx.wait();
+      alert(`✅ Tender bol zrušený.\n\n🔗 Transakcia: ${explorerUrl.tx(receipt.transactionHash)}`);
+      getTenderDetails(tenderId);
+      loadAllTenders();
+      setLoading(false);
+    } catch (error) {
+      console.error('cancelTender error:', error);
+      const info = [
+        'reason: ' + (error.reason || '-'),
+        'code: ' + (error.code || '-'),
+        'error.reason: ' + (error.error?.reason || '-'),
+        'error.message: ' + (error.error?.message || '-'),
+        'message: ' + (error.message || '-').substring(0, 300)
+      ].join('\n');
+      alert('Chyba pri zrušení:\n\n' + info);
+      setLoading(false);
+    }
+  };
+
+  const finalizeTender = async (tenderId) => {
+    if (!contract) return;
+    try {
+      setLoading(true);
+      const tx = await contract.finalizeTender(tenderId);
+      const receipt = await tx.wait();
+      alert(`✅ Tender bol finalizovaný! Víťaz bol určený.\n\n🔗 Transakcia: ${explorerUrl.tx(receipt.transactionHash)}`);
+      getTenderDetails(tenderId);
+      loadAllTenders();
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      alert('Chyba: ' + extractRevertReason(error));
+      setLoading(false);
+    }
+  };
+
+  const fulfillTender = async (tenderId) => {
+    if (!contract) return;
+    if (!window.confirm('Potvrdzujete, že tender bol splnený dodávateľom?')) return;
+    try {
+      setLoading(true);
+      const tx = await contract.fulfillTender(tenderId);
+      const receipt = await tx.wait();
+      alert(`✅ Tender bol označený ako splnený.\n\n🔗 Transakcia: ${explorerUrl.tx(receipt.transactionHash)}`);
+      getTenderDetails(tenderId);
+      loadAllTenders();
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      alert('Chyba: ' + extractRevertReason(error));
+      setLoading(false);
+    }
+  };
+
+  const updateTenderIPFSCID = async (tenderId, newCID) => {
+    if (!contract) return;
+    try {
+      setLoading(true);
+      const tx = await contract.updateTenderIPFSCID(tenderId, newCID);
+      const receipt = await tx.wait();
+      alert(`✅ Dokument bol aktualizovaný.\n\n🔗 Transakcia: ${explorerUrl.tx(receipt.transactionHash)}`);
+      getTenderDetails(tenderId);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      alert('Chyba: ' + extractRevertReason(error));
+      setLoading(false);
+    }
+  };
+
+  const publishTenderById = async (tenderId, daysOpen) => {
+    if (!contract) return;
+    const days = parseInt(daysOpen, 10);
+    if (isNaN(days) || days < 3 || days > 30) {
+      alert('Počet dní musí byť 3–30.');
+      return;
+    }
+    try {
+      setLoading(true);
+      const tx = await contract.publishTender(tenderId, days);
+      const receipt = await tx.wait();
+      alert(`✅ Tender bol uverejnený!\n\nOtvorený pre ponuky na ${days} dní.\n\n🔗 Transakcia: ${explorerUrl.tx(receipt.transactionHash)}`);
+      getTenderDetails(tenderId);
+      loadAllTenders();
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      alert('Chyba: ' + extractRevertReason(error));
+      setLoading(false);
+    }
+  };
 
   // Načítať tendery pri pripojení kontraktu alebo read-only kontrakte (pre ALT-UI)
   useEffect(() => {
@@ -798,7 +919,7 @@ export default function MicroTenderApp() {
   };
 
   return (
-      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="flex h-screen bg-gray-50 dark:bg-[#171f2b]">
         <div className="hidden md:block">
           <Sidebar
             activeItem={activeScreen}
@@ -842,7 +963,7 @@ export default function MicroTenderApp() {
             onMarkAllAsRead={markAllAsRead}
             onClearAll={clearAll}
           />
-          <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+          <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#171f2b]">
             {activeScreen === 'Dashboard' && (
               <Dashboard
                 onNavigate={handleNavigate}
@@ -914,6 +1035,11 @@ export default function MicroTenderApp() {
                 setBidForm={setBidForm}
                 onSubmitBid={submitBid}
                 getIPFSUrl={getIPFSUrl}
+                onCancelTender={cancelTender}
+                onFinalizeTender={finalizeTender}
+                onFulfillTender={fulfillTender}
+                onUpdateIPFSCID={updateTenderIPFSCID}
+                onPublishTender={publishTenderById}
               />
             )}
             {activeScreen === 'Registrácia dodávateľa' && (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Copy, Check, ExternalLink, Shield, User, Globe, Moon, Sun, UserPlus, UserMinus } from 'lucide-react';
 
-const CONTRACT_ADDRESS = '0xC5EA6607B52EBBbFFBac26b9b68594357720ab75';
+const CONTRACT_ADDRESS = '0x1F8CCE975c9cB052Bf8c6ED04B2a9c614436C5D0';
 const CHAIN_ID_AMOY = 80002;
 const POLYGONSCAN_URL = `https://amoy.polygonscan.com/address/${CONTRACT_ADDRESS}`;
 
@@ -183,8 +183,8 @@ export function Settings({ account, isMember, userRole, isRegisteredVendor, myAp
                     onChange={(e) => setRoleToGrant(e.target.value)}
                     className="px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
                   >
-                    <option value="0">Member (0)</option>
-                    <option value="1">Admin (1)</option>
+                    <option value="0" className="dark:bg-gray-700">Member (0)</option>
+                    <option value="1" className="dark:bg-gray-700">Admin (1)</option>
                   </select>
                   <button
                     type="button"
