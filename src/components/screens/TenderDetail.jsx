@@ -260,7 +260,7 @@ export function TenderDetail({
         {/* Transparency / on-chain verification */}
         <div className="mt-8 p-5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-xl">
           <div className="flex items-center gap-2 mb-3">
-            <Shield size={18} className="text-purple-600 dark:text-purple-400" />
+            <Shield size={18} className="text-blue-600 dark:text-blue-400" />
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Overenie na blockchaine</h3>
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
@@ -271,7 +271,7 @@ export function TenderDetail({
               href={explorerUrl.contract()}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
             >
               <ExternalLink size={12} /> Smart kontrakt
             </a>
@@ -279,7 +279,7 @@ export function TenderDetail({
               href={explorerUrl.address(selectedTender.creator)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
             >
               <ExternalLink size={12} /> Tvorca tendra
             </a>
@@ -288,7 +288,7 @@ export function TenderDetail({
                 href={getIPFSUrl ? getIPFSUrl(selectedTender.ipfsCID) : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
               >
                 <ExternalLink size={12} /> Dokument (IPFS)
               </a>
