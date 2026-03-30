@@ -299,6 +299,16 @@ export default function MicroTenderApp() {
     }
   };
 
+  const disconnectWallet = () => {
+    setAccount('');
+    setContract(null);
+    setUserRole(null);
+    setIsMember(false);
+    setIsRegisteredVendor(false);
+    setMyApplicationStatus(null);
+    setActiveScreen('Dashboard');
+  };
+
   const loadAllTenders = async () => {
     if (!contract) return;
     try {
@@ -821,6 +831,7 @@ export default function MicroTenderApp() {
             onMenuClick={() => setIsMobileMenuOpen(true)}
             account={account}
             onConnectWallet={connectWallet}
+            onDisconnect={disconnectWallet}
             isMember={isMember}
             isRegisteredVendor={isRegisteredVendor}
             notifications={notifications}
