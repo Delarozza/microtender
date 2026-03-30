@@ -1,438 +1,142 @@
-# 🎯 MicroTender - Децентрализованная система тендеров
+# MicroTender
 
-Система управления тендерами для студенческого совета на базе блокчейна Polygon и IPFS.
+Decentralized micro-procurement platform for student councils. Built on Polygon Amoy testnet, it enables transparent creation, bidding, voting, and fulfillment of small-scale tenders — with every action recorded on-chain.
 
----
-
-## 📋 Что мы сделали сегодня
-
-### ✅ 1. Интеграция IPFS с Pinata
-- **Загрузка документов:** Реализована загрузка PDF, DOC, DOCX файлов в IPFS через Pinata
-- **Хранение CID:** CID документов сохраняется в смарт-контракте
-- **UI для загрузки:** Добавлена форма с drag & drop, индикатором прогресса и отображением загруженного файла
-- **Настройка Pinata:** Создан аккаунт, получен JWT токен, добавлен в `.env.local`
-- **Файлы:**
-  - `src/utils/pinata.js` - утилита для работы с Pinata API
-  - Интеграция в `src/App.jsx` для создания тендеров
-
-### ✅ 2. Система авторизации вендоров
-- **Заявки на регистрацию:** Вендоры подают заявки через форму
-- **Одобрение членами совета:** Только члены студенческого совета могут одобрять/отклонять заявки
-- **Статусы заявок:** Pending → Approved/Rejected
-- **Функции в контракте:**
-  - `submitVendorApplication()` - подача заявки
-  - `approveVendorApplication()` - одобрение (только Member/Admin)
-  - `rejectVendorApplication()` - отклонение (только Member/Admin)
-  - `revokeVendorStatus()` - отзыв статуса вендора
-
-### ✅ 3. Улучшенный смарт-контракт
-- **Оптимизация газа:** Использование `unchecked` блоков для безопасных операций
-- **Безопасность:** Добавлены модификаторы `validTender`, `validApplication`
-- **Константы:** Ограничения на дедлайны и длину строк
-- **Новые функции:**
-  - `cancelTender()` - отмена тендера
-  - `updateTenderIPFSCID()` - обновление CID документа
-  - `revokeRole()` - отзыв роли пользователя
-- **События:** Расширенный набор events для отслеживания всех действий
-
-### ✅ 4. Улучшения UI/UX
-- **Автоматическое определение ролей:** Роли определяются автоматически на основе контракта
-- **Переключатель ролей для тестирования:** В dev режиме доступен переключатель между Observer/Council/Vendor
-- **Бейджи статусов:** Отображение ролей и статусов пользователя
-- **Валидация форм:** Проверка данных перед отправкой
-- **Обработка ошибок:** Понятные сообщения об ошибках
-
-### ✅ 5. Управление ролями
-- **Три режима в UI:**
-  - **Observer** - гость, может просматривать тендеры и подавать заявку на регистрацию
-  - **Council** - член совета (Member/Admin), может создавать тендеры, голосовать, одобрять вендоров
-  - **Vendor** - одобренный вендор, может подавать предложения
-- **Автоматическое переключение:** Режим определяется автоматически на основе ролей в контракте
-
----
-
-## 🚧 Что ещё нужно сделать
-
-### 🔴 Высокий приоритет
-
-1. **Тестирование всей системы**
-   - [ ] Протестировать полный цикл: создание тендера → подача предложения → голосование → завершение
-   - [ ] Протестировать на Polygon Amoy testnet
-   - [ ] Проверить все роли и их возможности
-   - [ ] Проверить обработку ошибок
-   - [ ] Протестировать загрузку файлов в IPFS
-
-### 🟡 Средний приоритет
-
-2. **Обновление CID после создания тендера**
-   - [ ] Функция `updateTenderIPFSCID` уже есть в контракте
-   - [ ] Добавить UI для загрузки файла после создания тендера (до публикации)
-
-3. **Улучшения UI для IPFS**
-   - [ ] Предпросмотр PDF в iframe
-   - [ ] Отображение размера файла
-   - [ ] Кнопка скачивания
-   - [ ] Улучшенная обработка ошибок загрузки
-
-4. **Валидация и безопасность**
-   - [ ] Проверка размера файлов (максимум 10MB)
-   - [ ] Проверка типов файлов (только PDF, DOC, DOCX)
-   - [ ] Rate limiting для API вызовов
-
-### 🟢 Низкий приоритет
-
-5. **Автоматизация**
-   - [ ] Автоматическая финализация тендеров после окончания голосования
-   - [ ] Уведомления о важных событиях
-   - [ ] Email уведомления
-
-6. **Дополнительные функции**
-   - [ ] История всех тендеров
-   - [ ] Статистика и аналитика
-   - [ ] Фильтры и сортировка
-   - [ ] Экспорт данных в PDF/CSV
-   - [ ] Поиск по тендерам
-
-7. **Оптимизация**
-   - [ ] Пагинация для больших списков
-   - [ ] Кэширование данных
-   - [ ] Lazy loading компонентов
-
----
-
-## 📚 Инструкция по работе с контрактом через Remix IDE
-
-### 🚀 Быстрый старт
-
-#### Шаг 1: Откройте Remix IDE
-1. Перейдите на https://remix.ethereum.org
-2. Создайте новый файл `MicroTender.sol` или откройте существующий из `Crypto inf/contracts/MicroTender.sol`
-
-#### Шаг 2: Подключите кошелек
-1. В Remix перейдите в раздел **"Deploy & Run Transactions"** (слева)
-2. Выберите **"Injected Provider - MetaMask"** в Environment
-3. Подключите ваш MetaMask кошелек
-4. Выберите сеть **Polygon Amoy** (тестовая сеть)
-
-#### Шаг 3: Задеплойте или подключитесь к контракту
-
-**Вариант A: Задеплоить новый контракт**
-1. Скомпилируйте контракт (Compile tab, выберите версию 0.8.19)
-2. В Deploy выберите `MicroTender`
-3. Нажмите **"Deploy"**
-4. Скопируйте адрес задеплоенного контракта
-
-**Вариант B: Подключиться к существующему контракту**
-1. В разделе "At Address" вставьте адрес вашего контракта
-2. Нажмите **"At Address"**
-3. Контракт появится в списке задеплоенных контрактов
-
----
-
-### 🔧 Основные операции
-
-#### 1. Управление ролями
-
-**Выдать роль Member пользователю:**
-```
-Функция: grantRole
-Параметры:
-  - _user: адрес пользователя (например: 0x1234...5678)
-  - _role: 0 (Member) или 1 (Admin)
-  
-Нажмите "transact" и подтвердите в MetaMask
-```
-
-**Проверить роль пользователя:**
-```
-Функция: getUserRole
-Параметры:
-  - _user: адрес пользователя
-  
-Нажмите "call" (view функция, бесплатно)
-Результат: 0 = Member, 1 = Admin
-```
-
-**Отозвать роль:**
-```
-Функция: revokeRole
-Параметры:
-  - _user: адрес пользователя
-  
-Нажмите "transact" и подтвердите
-```
-
-#### 2. Управление тендерами
-
-**Создать тендер:**
-```
-Функция: createTender
-Параметры:
-  - _title: "Название тендера"
-  - _description: "Описание"
-  - _maxBudget: 1000000000000000000 (1 ETH в wei)
-  - _category: "Kancelárske potreby"
-  - _ipfsCID: "Qm..." или "" (пусто)
-  
-Нажмите "transact"
-Результат: ID созданного тендера (в events)
-```
-
-**Опубликовать тендер (открыть для предложений):**
-```
-Функция: publishTender
-Параметры:
-  - _tenderId: 1 (ID тендера)
-  - _daysUntilDeadline: 7 (количество дней, минимум 3, максимум 30)
-  
-Нажмите "transact"
-Статус изменится с Draft на Open
-```
-
-**Начать голосование:**
-```
-Функция: startVoting
-Параметры:
-  - _tenderId: 1
-  - _votingDays: 3 (количество дней, минимум 1, максимум 14)
-  
-Нажмите "transact"
-Статус изменится с Open на Voting
-```
-
-**Завершить тендер (определить победителя):**
-```
-Функция: finalizeTender
-Параметры:
-  - _tenderId: 1
-  
-Нажмите "transact"
-Статус изменится с Voting на Completed
-```
-
-**Отменить тендер:**
-```
-Функция: cancelTender
-Параметры:
-  - _tenderId: 1
-  
-Нажмите "transact"
-Статус изменится на Cancelled (только в статусе Draft или Open)
-```
-
-**Обновить IPFS CID:**
-```
-Функция: updateTenderIPFSCID
-Параметры:
-  - _tenderId: 1
-  - _ipfsCID: "Qm..." (новый CID)
-  
-Нажмите "transact"
-(Только в статусе Draft, только создатель)
-```
-
-#### 3. Управление вендорами
-
-**Одобрить заявку вендора:**
-```
-Функция: approveVendorApplication
-Параметры:
-  - _applicationId: 1 (ID заявки)
-  
-Нажмите "transact"
-Вендор получит возможность подавать предложения
-```
-
-**Отклонить заявку вендора:**
-```
-Функция: rejectVendorApplication
-Параметры:
-  - _applicationId: 1
-  
-Нажмите "transact"
-Вендор сможет подать новую заявку
-```
-
-**Проверить статус заявки:**
-```
-Функция: getVendorApplicationStatus
-Параметры:
-  - _vendor: адрес вендора
-  
-Нажмите "call"
-Результат: 0 = Pending, 1 = Approved, 2 = Rejected
-```
-
-**Отозвать статус вендора:**
-```
-Функция: revokeVendorStatus
-Параметры:
-  - _vendor: адрес вендора
-  
-Нажмите "transact"
-(Может вызвать owner или сам вендор)
-```
-
-#### 4. Просмотр данных (view функции - бесплатно)
-
-**Получить информацию о тендере:**
-```
-Функция: getTender
-Параметры: _tenderId: 1
-Нажмите "call"
-```
-
-**Получить все предложения для тендера:**
-```
-Функция: getTenderBids
-Параметры: _tenderId: 1
-Нажмите "call"
-```
-
-**Получить количество голосов:**
-```
-Функция: getVoteCount
-Параметры:
-  - _tenderId: 1
-  - _bidId: 1
-Нажмите "call"
-```
-
-**Получить победителя:**
-```
-Функция: getWinningBid
-Параметры: _tenderId: 1
-Нажмите "call"
-```
-
----
-
-### 🎭 Примеры использования
-
-#### Пример 1: Полный цикл тендера
-
-```solidity
-// 1. Member создает тендер
-createTender("50 markerov", "Potrebujeme 50 markerov", 1000000000000000000, "Kancelárske", "")
-
-// 2. Member публикует тендер
-publishTender(1, 7)  // 7 дней на предложения
-
-// 3. Vendor (одобренный) подает предложение
-submitBid(1, 800000000000000000, 5, "Dodám za 5 dní")
-
-// 4. Member начинает голосование
-startVoting(1, 3)  // 3 дня на голосование
-
-// 5. Member голосует
-castVote(1, 1)  // за предложение с ID 1
-
-// 6. Member завершает тендер
-finalizeTender(1)
-
-// 7. Проверяем победителя
-getWinningBid(1)  // вернет информацию о победителе
-```
-
-#### Пример 2: Управление вендорами
-
-```solidity
-// 1. Owner выдает роль Member
-grantRole(0x1234..., 0)  // 0 = Member
-
-// 2. Пользователь подает заявку как вендор
-submitVendorApplication("ABC Supplies", "info@abc.com", "Опыт 10 лет")
-
-// 3. Member одобряет заявку
-approveVendorApplication(1)
-
-// 4. Проверяем, что вендор зарегистрирован
-isRegisteredVendor(0x1234...)  // вернет true
-```
-
----
-
-### 💡 Полезные советы
-
-1. **Конвертация ETH в Wei:**
-   - 1 ETH = 1,000,000,000,000,000,000 wei (10^18)
-   - Используйте функцию `weiToEther` для обратной конвертации
-
-2. **Работа с разными аккаунтами:**
-   - В MetaMask можно создать несколько тестовых аккаунтов
-   - Переключайтесь между ними в MetaMask
-   - Remix автоматически использует активный аккаунт
-
-3. **Просмотр событий:**
-   - В Remix перейдите в раздел **"Logs"** (внизу)
-   - После каждой транзакции вы увидите события
-
-4. **Отладка ошибок:**
-   - Если транзакция не проходит, проверьте:
-     - Правильность параметров
-     - Достаточно ли газа
-     - Правильную ли роль имеет аккаунт
-     - Правильный ли статус у тендера
-
----
-
-### ⚠️ Важные замечания
-
-1. **Все транзакции требуют газа** - убедитесь, что на кошельке есть тестовые токены
-2. **View функции бесплатные** - можно вызывать сколько угодно раз
-3. **События видны только после транзакций** - они не сохраняются в контракте
-4. **Адреса чувствительны к регистру** - используйте правильный формат (0x...)
-
----
-
-## 🛠️ Технические детали
-
-### Структура проекта
+## Architecture
 
 ```
-microtender-app/
-├── src/
-│   ├── App.jsx              # Главный компонент приложения
-│   ├── utils/
-│   │   └── pinata.js        # Утилита для работы с Pinata IPFS
-│   └── ...
-├── Crypto inf/
-│   └── contracts/
-│       └── MicroTender.sol  # Смарт-контракт (улучшенная версия)
-├── .env.local               # Переменные окружения (не коммитится)
-└── README.md                # Этот файл
+React (CRA) + ethers.js v5  <-->  MicroTender.sol (Solidity 0.8.19)  <-->  Polygon Amoy
+      |                                     |
+      |--- Tailwind CSS (dark mode)         |--- Role-based access (Owner, Admin, Member, Vendor)
+      |--- Pinata / IPFS (documents)        |--- Tender lifecycle (Draft -> Open -> Voting -> Completed -> Fulfilled)
 ```
 
-### Переменные окружения
+## Smart Contract
 
-Создайте файл `.env.local`:
+**Address:** `0x1F8CCE975c9cB052Bf8c6ED04B2a9c614436C5D0`
+**Network:** Polygon Amoy (Chain ID 80002)
+**Source:** `Crypto inf/contracts/MicroTender.sol`
+
+### Roles
+
+| Role | Description |
+|------|-------------|
+| Owner | Deployer. Can grant/revoke all roles. |
+| Admin | Can manage roles (grant Member). |
+| Member | Council member. Can create tenders, start voting, cast votes, finalize tenders. |
+| Vendor | Registered supplier. Can submit bids on open tenders. |
+
+### Tender Lifecycle
+
 ```
-REACT_APP_CONTRACT_ADDRESS=0x...  # Адрес задеплоенного контракта
-REACT_APP_PINATA_JWT=your_jwt_token_here
+Draft --> Open --> Voting --> Completed --> Fulfilled
+  |         |                                  
+  |         +------> Cancelled                 
+  +-------------> Cancelled                    
 ```
 
-### Запуск проекта
+- **Draft:** Created by a member. Can update IPFS document, publish, or cancel.
+- **Open:** Accepts bids from vendors until the deadline.
+- **Voting:** Members vote on submitted bids. Creator sets voting duration (1-14 days).
+- **Completed:** Voting ended, winner determined by vote count.
+- **Fulfilled:** Creator confirms the winning vendor delivered.
+- **Cancelled:** Creator cancelled the tender (only from Draft or Open).
+
+### Key Functions
+
+| Function | Access | Description |
+|----------|--------|-------------|
+| `createTender` | Member | Create a draft tender with title, description, budget, category, IPFS CID. |
+| `publishTender` | Creator | Open the draft for bids with a deadline (3-30 days). |
+| `submitBid` | Vendor | Submit a bid with price, delivery time, and description. |
+| `startVoting` | Creator | Transition from Open to Voting (requires at least 1 bid). |
+| `castVote` | Member | Vote for a bid (one vote per member per tender). |
+| `finalizeTender` | Creator | Close voting, determine winner by highest vote count. |
+| `fulfillTender` | Creator | Confirm delivery by the winning vendor. |
+| `cancelTender` | Creator | Cancel a Draft or Open tender. |
+| `updateTenderIPFSCID` | Creator | Update the attached document while still in Draft. |
+| `submitVendorApplication` | Anyone | Apply to become a registered vendor. |
+| `approveVendorApplication` | Member | Approve a vendor application. |
+| `rejectVendorApplication` | Member | Reject a vendor application. |
+| `grantRole` | Owner | Assign Member or Admin role to an address. |
+
+### Events
+
+`TenderCreated`, `TenderPublished`, `TenderCancelled`, `TenderCompleted`, `BidSubmitted`, `VoteCasted`, `VendorApplicationSubmitted`, `VendorApplicationApproved`, `VendorApplicationRejected`, `VendorRegistered`, `RoleGranted`, `RoleRevoked`, `IPFSCIDUpdated`.
+
+## Frontend
+
+Single-page React application with sidebar navigation and full dark mode support.
+
+### Project Structure
+
+```
+src/
+  App.jsx                          Main component: wallet connection, contract interaction, routing
+  components/
+    Header.jsx                     Top bar: search, notifications, wallet info, disconnect
+    Sidebar.jsx                    Navigation menu, user profile display
+    screens/
+      Dashboard.jsx                Overview stats, quick actions, recent tenders
+      CreateTender.jsx             Two-step form: create draft, then publish
+      MyTenders.jsx                Tenders created by the connected wallet
+      AllTenders.jsx               Full list of all tenders in the system
+      TenderDetail.jsx             Tender info, bids, voting, lifecycle actions, on-chain verification links
+      Voting.jsx                   Dedicated voting screen for tenders in Voting state
+      VendorRegistration.jsx       Vendor application form
+      VendorApproval.jsx           Approve/reject vendor applications (council members)
+      Reports.jsx                  Analytics: stats, charts by status and category, top tenders
+      Settings.jsx                 User profile, role management, contract info, theme toggle
+  hooks/
+    useNotifications.js            Real-time contract event listener, persists to localStorage
+  utils/
+    explorer.js                    Polygonscan URL helpers, short address formatter
+    pinata.js                      IPFS file upload via Pinata API
+    category.js                    Tender category icons and labels
+```
+
+### Key Technical Details
+
+- **Wallet:** MetaMask integration via `ethers.js`. Auto-detects network and prompts to switch to Polygon Amoy.
+- **RPC:** Multiple fallback endpoints (`drpc.org`, `polygon.technology`, `publicnode.com`, `blockpi.network`) with retry logic for intermittent failures.
+- **Notifications:** `useNotifications` hook subscribes to contract events and stores notifications in `localStorage` (max 50).
+- **IPFS:** Documents uploaded to Pinata, CID stored on-chain. Viewable via `ipfs.io` gateway.
+- **Dark mode:** Tailwind `class` strategy with `localStorage` persistence. Toggle in Settings.
+- **Budget conversion:** Prices entered in EUR, converted to ETH/wei using a fixed 1800 EUR/ETH rate.
+- **Transparency:** Every tender detail page includes Polygonscan links to the contract, creator address, and transaction hashes.
+
+## Configuration
+
+| File | Purpose |
+|------|---------|
+| `tailwind.config.js` | Tailwind with `darkMode: 'class'` |
+| `hardhat.config.js` | Solidity 0.8.19, optimizer enabled (200 runs) |
+| `.env.local` | `REACT_APP_PINATA_JWT` for IPFS uploads |
+
+## Development
 
 ```bash
-# Установка зависимостей
 npm install
-
-# Запуск в режиме разработки
-npm start
-
-# Сборка для production
-npm run build
+npm start           # http://localhost:3000
 ```
 
----
+## Testing
 
-## 📝 Примечания
+```bash
+npx hardhat test    # Smart contract tests
+```
 
-- **Роли в контракте:** `Member` (0), `Admin` (1)
-- **Режимы в UI:** `Observer`, `Council`, `Vendor` (определяются автоматически)
-- **Vendor** - это не роль, а отдельный статус через `registeredVendors`
-- **Pinata:** Бесплатный план до 1GB хранилища, достаточно для тестирования
+Test file: `test/MicroTender.test.js`. Covers role management, tender lifecycle, bidding, voting, finalization, vendor registration, and edge cases.
 
----
+## Deployment
 
-**Готово к использованию!** 🎉
+Frontend is deployed on Vercel (connected to the GitHub repository). The smart contract is deployed on Polygon Amoy via Remix IDE.
+
+## Tech Stack
+
+- React 19, Tailwind CSS, lucide-react
+- ethers.js v5 (loaded via CDN in `public/index.html`)
+- Solidity 0.8.19, Hardhat
+- Polygon Amoy testnet
+- Pinata (IPFS)
+- Vercel (hosting)
