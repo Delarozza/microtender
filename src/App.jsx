@@ -13,6 +13,7 @@ import { VendorRegistration } from './components/screens/VendorRegistration';
 import { VendorApproval } from './components/screens/VendorApproval';
 import { Settings } from './components/screens/Settings';
 import { Reports } from './components/screens/Reports';
+import { useNotifications } from './hooks/useNotifications';
 
 const CONTRACT_ADDRESS = "0xC5EA6607B52EBBbFFBac26b9b68594357720ab75";
 const CHAIN_ID_AMOY = 80002; // Polygon Amoy testnet
@@ -95,6 +96,7 @@ export default function MicroTenderApp() {
   const [activeScreen, setActiveScreen] = useState('Dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const accountRef = useRef(account);
+  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications(contract, account);
 
   // Súlad UI s aktuálnym účtom (pri zmene / odpojení)
   useEffect(() => {
@@ -821,6 +823,11 @@ export default function MicroTenderApp() {
             onConnectWallet={connectWallet}
             isMember={isMember}
             isRegisteredVendor={isRegisteredVendor}
+            notifications={notifications}
+            unreadCount={unreadCount}
+            onMarkAsRead={markAsRead}
+            onMarkAllAsRead={markAllAsRead}
+            onClearAll={clearAll}
           />
           <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
             {activeScreen === 'Dashboard' && (
