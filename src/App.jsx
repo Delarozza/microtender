@@ -12,6 +12,7 @@ import { TenderDetail } from './components/screens/TenderDetail';
 import { VendorRegistration } from './components/screens/VendorRegistration';
 import { VendorApproval } from './components/screens/VendorApproval';
 import { Settings } from './components/screens/Settings';
+import { Reports } from './components/screens/Reports';
 
 const CONTRACT_ADDRESS = "0xC5EA6607B52EBBbFFBac26b9b68594357720ab75";
 const CHAIN_ID_AMOY = 80002; // Polygon Amoy testnet
@@ -918,10 +919,11 @@ export default function MicroTenderApp() {
               />
             )}
             {activeScreen === 'Reporty' && (
-              <div className="p-4 md:p-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Reporty</h1>
-                <p className="text-gray-600 mt-2">Coming Soon</p>
-              </div>
+              <Reports
+                tenders={allTenders}
+                contract={contract}
+                account={account}
+              />
             )}
             {activeScreen === 'Nastavenia' && (
               <Settings
