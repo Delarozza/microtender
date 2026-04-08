@@ -186,9 +186,9 @@ describe("MicroTender", function () {
       ).to.be.revertedWith("Invalid deadline");
     });
 
-    it("Should reject invalid deadline (more than 30 days)", async function () {
+    it("Should reject invalid deadline (more than 14 days)", async function () {
       await expect(
-        microTender.connect(member).publishTender(tenderId, 31)
+        microTender.connect(member).publishTender(tenderId, 15)
       ).to.be.revertedWith("Invalid deadline");
     });
 
@@ -432,8 +432,73 @@ describe("MicroTender", function () {
       const parsedEvent2 = microTender.interface.parseLog(event2);
       bidId2 = parsedEvent2.args.bidId;
 
+      await microTender.connect(vendor).submitBid(
+        tenderId,
+        bidPrice,
+        6,
+        "Ponuka 3"
+      );
+
       // Начинаем голосование
       await microTender.connect(member).startVoting(tenderId, 3);
+    });
+
+    it("Should reject startVoting with fewer than 3 bids", async function () {
+      const maxBudget = ethers.parseEther("1.0");
+      const bidPrice = ethers.parseEther("0.5");
+      const tx = await microTender.connect(member).createTender(
+        "Two bids only",
+        "Description",
+        maxBudget,
+        "Kancelárske",
+        ""
+      );
+      const receipt = await tx.wait();
+      const event = receipt.logs.find(log => {
+        try {
+          const parsed = microTender.interface.parseLog(log);
+          return parsed && parsed.name === "TenderCreated";
+        } catch {
+          return false;
+        }
+      });
+      const tid = microTender.interface.parseLog(event).args.tenderId;
+      await microTender.connect(member).publishTender(tid, 7);
+      await microTender.connect(vendor).submitBid(tid, bidPrice, 7, "P1");
+      await microTender.connect(vendor2).submitBid(tid, bidPrice, 5, "P2");
+      await expect(
+        microTender.connect(member).startVoting(tid, 3)
+      ).to.be.revertedWith("Need at least 3 bids");
+    });
+
+    it("Should reject startVoting with less than 3 days", async function () {
+      const maxBudget = ethers.parseEther("1.0");
+      const bidPrice = ethers.parseEther("0.5");
+      const tx = await microTender.connect(member).createTender(
+        "Low days voting",
+        "Description",
+        maxBudget,
+        "Kancelárske",
+        ""
+      );
+      const receipt = await tx.wait();
+      const event = receipt.logs.find(log => {
+        try {
+          const parsed = microTender.interface.parseLog(log);
+          return parsed && parsed.name === "TenderCreated";
+        } catch {
+          return false;
+        }
+      });
+      const tid = microTender.interface.parseLog(event).args.tenderId;
+      await microTender.connect(member).publishTender(tid, 7);
+      // vendor and vendor2 already registered in this describe's beforeEach
+      await microTender.connect(vendor).submitBid(tid, bidPrice, 7, "P1");
+      await microTender.connect(vendor2).submitBid(tid, bidPrice, 5, "P2");
+      await microTender.connect(vendor).submitBid(tid, bidPrice, 6, "P3");
+      await expect(
+        microTender.connect(member).startVoting(tid, 2)
+      ).to.be.revertedWith("Invalid voting days");
     });
 
     it("Should allow Member to vote", async function () {
@@ -570,6 +635,13 @@ describe("MicroTender", function () {
       });
       const parsedEvent2 = microTender.interface.parseLog(event2);
       bidId2 = parsedEvent2.args.bidId;
+
+      await microTender.connect(vendor).submitBid(
+        tenderId,
+        bidPrice,
+        6,
+        "Ponuka 3"
+      );
 
       // Начинаем голосование
       await microTender.connect(member).startVoting(tenderId, 3);

@@ -2,7 +2,6 @@ import React from 'react';
 import { TrendingUp, FileText, Clock, CheckCircle, UserPlus, Shield } from 'lucide-react';
 import { getCategoryIcon } from '../../utils/category';
 
-const ETH_TO_EUR = 1800;
 
 export function Dashboard({ onNavigate, tenders, account, isMember, isRegisteredVendor }) {
   const activeTenders = tenders.filter((t) => t.statusIndex === 1).length;
@@ -123,7 +122,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{tender.title}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {tender.status} • {(tender.maxBudget * ETH_TO_EUR).toFixed(2)} €
+                      {tender.status} • {tender.maxBudget.toFixed(2)} €
                     </p>
                   </div>
                 </div>

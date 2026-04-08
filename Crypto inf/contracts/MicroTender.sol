@@ -10,9 +10,11 @@ contract MicroTender {
     
     // ========== CONSTANTS ==========    
     uint256 public constant MIN_DEADLINE_DAYS = 3;
-    uint256 public constant MAX_DEADLINE_DAYS = 30;
-    uint256 public constant MIN_VOTING_DAYS = 1;
+    uint256 public constant MAX_DEADLINE_DAYS = 14;
+    uint256 public constant MIN_VOTING_DAYS = 3;
     uint256 public constant MAX_VOTING_DAYS = 14;
+    /// @notice Minimum bids required before the creator can call startVoting
+    uint256 public constant MIN_BIDS_FOR_VOTING = 3;
     uint256 public constant MAX_STRING_LENGTH = 200; // Максимальная длина строк
     
     // ========== STRUCTS ==========
@@ -478,7 +480,7 @@ contract MicroTender {
     // ========== VOTING FUNCTIONS ==========
     
     /**
-     * @dev Начать голосование
+     * @dev Начать голосование (минимум MIN_BIDS_FOR_VOTING предложений)
      * @param _tenderId ID тендера
      * @param _votingDays Количество дней для голосования
      */
@@ -489,7 +491,10 @@ contract MicroTender {
         Tender storage tender = tenders[_tenderId];
         require(tender.creator == msg.sender, "Only creator");
         require(tender.status == TenderStatus.Open, "Not open");
-        require(tenderBids[_tenderId].length > 0, "No bids");
+        require(
+            tenderBids[_tenderId].length >= MIN_BIDS_FOR_VOTING,
+            "Need at least 3 bids"
+        );
         require(
             _votingDays >= MIN_VOTING_DAYS && _votingDays <= MAX_VOTING_DAYS,
             "Invalid voting days"

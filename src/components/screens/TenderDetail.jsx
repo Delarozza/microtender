@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { FileText, ThumbsUp, ExternalLink, Shield, XCircle, CheckCircle, Award, Trophy, Upload, Send } from 'lucide-react';
 import { explorerUrl, shortAddress } from '../../utils/explorer';
 
-const ETH_TO_EUR = 1800;
 
 export function TenderDetail({
   selectedTender,
@@ -63,7 +62,7 @@ export function TenderDetail({
             setWinningBid({
               bidId: Number(w.bidId),
               vendor: w.vendor,
-              price: Number(w.price),
+              price: parseFloat(window.ethers.utils.formatEther(w.price)),
               votes: Number(w.votes),
             });
           }
@@ -77,7 +76,9 @@ export function TenderDetail({
   if (!selectedTender) return null;
 
   const isCreator = account && selectedTender.creator && account.toLowerCase() === selectedTender.creator.toLowerCase();
-  const canStartVoting = selectedTender.statusIndex === 1 && bids.length > 0 && isCreator;
+  const minBidsForVoting = 3;
+  const canStartVoting =
+    selectedTender.statusIndex === 1 && bids.length >= minBidsForVoting && isCreator;
   const canVote = selectedTender.statusIndex === 2 && isMember;
   const canSubmitBid = selectedTender.statusIndex === 1 && isRegisteredVendor && !isMember;
 
@@ -159,7 +160,7 @@ export function TenderDetail({
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Maximálny rozpočet</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {(selectedTender.maxBudget * ETH_TO_EUR).toFixed(2)} €
+              {selectedTender.maxBudget.toFixed(2)} €
             </p>
           </div>
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
@@ -176,14 +177,14 @@ export function TenderDetail({
               <span className="text-blue-800 dark:text-blue-300 font-semibold text-sm">Uverejniť tender</span>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Tender je v stave Koncept. Po uverejnení bude otvorený pre ponuky dodávateľov.
+              Tender je v stave Koncept. Po uverejnení bude otvorený pre ponuky dodávateľov. Dni na ponuky: 3–14.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <label className="text-sm text-gray-700 dark:text-gray-300">Počet dní na ponuky:</label>
               <input
                 type="number"
                 min={3}
-                max={30}
+                max={14}
                 value={publishDays}
                 onChange={(e) => setPublishDays(e.target.value)}
                 className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -233,18 +234,27 @@ export function TenderDetail({
           </div>
         )}
 
+        {selectedTender.statusIndex === 1 && isCreator && bids.length > 0 && bids.length < minBidsForVoting && (
+          <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+            <p className="text-sm text-amber-900 dark:text-amber-200">
+              Na spustenie hlasovania sú potrebné aspoň <strong>{minBidsForVoting}</strong> ponuky od dodávateľov.
+              Aktuálny počet: <strong>{bids.length}</strong>.
+            </p>
+          </div>
+        )}
+
         {canStartVoting && (
           <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl flex flex-wrap items-center gap-4">
-            <span className="text-blue-800 dark:text-blue-300 font-medium">Predčasne spustiť hlasovanie:</span>
+            <span className="text-blue-800 dark:text-blue-300 font-medium">Spustiť hlasovanie:</span>
             <input
               type="number"
-              min={1}
+              min={3}
               max={14}
               value={votingDaysInput}
               onChange={(e) => setVotingDaysInput(e.target.value)}
               className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
-            <span className="text-gray-600 dark:text-gray-400 text-sm">dní na hlasovanie</span>
+            <span className="text-gray-600 dark:text-gray-400 text-sm">dní (3–14)</span>
             <button
               type="button"
               onClick={() => onStartVoting(selectedTender.id, votingDaysInput)}
@@ -278,7 +288,7 @@ export function TenderDetail({
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-blue-600 dark:text-blue-400">
-                        {(bid.price * ETH_TO_EUR).toFixed(2)} €
+                        {bid.price.toFixed(2)} €
                       </p>
                       {isWinner && (
                         <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold rounded-full flex items-center gap-1">
@@ -334,7 +344,7 @@ export function TenderDetail({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
               <div>
                 <p className="text-gray-500 dark:text-gray-400">Cena</p>
-                <p className="font-semibold text-gray-900 dark:text-white">{(winningBid.price * ETH_TO_EUR).toFixed(2)} €</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{winningBid.price.toFixed(2)} €</p>
               </div>
               <div>
                 <p className="text-gray-500 dark:text-gray-400">Hlasy</p>

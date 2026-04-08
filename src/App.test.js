@@ -114,6 +114,7 @@ describe('Contract Integration', () => {
       getTenderBids: jest.fn(),
       createTender: jest.fn(),
       publishTender: jest.fn(),
+      createAndPublishTender: jest.fn(),
       registerAsVendor: jest.fn(),
       isRegisteredVendor: jest.fn(),
       submitBid: jest.fn(),

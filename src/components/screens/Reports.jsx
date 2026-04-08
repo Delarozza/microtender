@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { BarChart3, TrendingUp, Wallet, Users, Clock, FileText, CheckCircle, XCircle, Award } from 'lucide-react';
 import { getCategoryIcon, getCategoryLabel } from '../../utils/category';
 
-const ETH_TO_EUR = 1800;
 
 const STATUS_META = [
   { key: 'Koncept',    idx: 0, color: 'bg-gray-400',    darkColor: 'dark:bg-gray-500',    text: 'text-gray-700 dark:text-gray-300' },
@@ -66,7 +65,7 @@ export function Reports({ tenders, contract, account }) {
       return { total: 0, totalBudget: 0, avgBudget: 0, totalBids: 0, byStatus: {}, byCategory: {}, topTenders: [], creators: new Set() };
     }
 
-    const totalBudgetEur = tenders.reduce((s, t) => s + t.maxBudget * ETH_TO_EUR, 0);
+    const totalBudgetEur = tenders.reduce((s, t) => s + t.maxBudget, 0);
     const totalBids = tenders.reduce((s, t) => s + (t.bidCount || 0), 0);
     const creators = new Set(tenders.map((t) => t.creator?.toLowerCase()).filter(Boolean));
 
@@ -206,7 +205,7 @@ export function Reports({ tenders, contract, account }) {
                   <p className="text-xs text-gray-500 dark:text-gray-400">{t.status} · {t.bidCount || 0} ponúk</p>
                 </div>
                 <span className="text-sm font-bold text-blue-600 dark:text-blue-400 flex-shrink-0">
-                  {(t.maxBudget * ETH_TO_EUR).toFixed(0)} €
+                  {t.maxBudget.toFixed(0)} €
                 </span>
               </div>
             ))}

@@ -37,7 +37,7 @@ Draft --> Open --> Voting --> Completed --> Fulfilled
 
 - **Draft:** Created by a member. Can update IPFS document, publish, or cancel.
 - **Open:** Accepts bids from vendors until the deadline.
-- **Voting:** Members vote on submitted bids. Creator sets voting duration (1-14 days).
+- **Voting:** Members vote on submitted bids. Creator sets voting duration (3–14 days).
 - **Completed:** Voting ended, winner determined by vote count.
 - **Fulfilled:** Creator confirms the winning vendor delivered.
 - **Cancelled:** Creator cancelled the tender (only from Draft or Open).
@@ -47,9 +47,9 @@ Draft --> Open --> Voting --> Completed --> Fulfilled
 | Function | Access | Description |
 |----------|--------|-------------|
 | `createTender` | Member | Create a draft tender with title, description, budget, category, IPFS CID. |
-| `publishTender` | Creator | Open the draft for bids with a deadline (3-30 days). |
+| `publishTender` | Creator | Open the draft for bids with a deadline (3–14 days). |
 | `submitBid` | Vendor | Submit a bid with price, delivery time, and description. |
-| `startVoting` | Creator | Transition from Open to Voting (requires at least 1 bid). |
+| `startVoting` | Creator | Transition from Open to Voting (requires at least 3 bids). |
 | `castVote` | Member | Vote for a bid (one vote per member per tender). |
 | `finalizeTender` | Creator | Close voting, determine winner by highest vote count. |
 | `fulfillTender` | Creator | Confirm delivery by the winning vendor. |
@@ -78,7 +78,7 @@ src/
     Sidebar.jsx                    Navigation menu, user profile display
     screens/
       Dashboard.jsx                Overview stats, quick actions, recent tenders
-      CreateTender.jsx             Two-step form: create draft, then publish
+      CreateTender.jsx             New tender form: `createTender` + `publishTender` in one action (two transactions)
       MyTenders.jsx                Tenders created by the connected wallet
       AllTenders.jsx               Full list of all tenders in the system
       TenderDetail.jsx             Tender info, bids, voting, lifecycle actions, on-chain verification links
@@ -102,7 +102,7 @@ src/
 - **Notifications:** `useNotifications` hook subscribes to contract events and stores notifications in `localStorage` (max 50).
 - **IPFS:** Documents uploaded to Pinata, CID stored on-chain. Viewable via `ipfs.io` gateway.
 - **Dark mode:** Tailwind `class` strategy with `localStorage` persistence. Toggle in Settings.
-- **Budget conversion:** Prices entered in EUR, converted to ETH/wei using a fixed 1800 EUR/ETH rate.
+- **Amounts:** Budget and bid prices are entered and displayed in EUR; on-chain values use `parseEther` / `formatEther` as numeric storage (not tied to live ETH price).
 - **Transparency:** Every tender detail page includes Polygonscan links to the contract, creator address, and transaction hashes.
 
 ## Configuration

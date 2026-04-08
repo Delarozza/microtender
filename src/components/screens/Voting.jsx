@@ -3,7 +3,6 @@ import { ThumbsUp, ExternalLink } from 'lucide-react';
 import { getCategoryIcon } from '../../utils/category';
 import { explorerUrl, shortAddress } from '../../utils/explorer';
 
-const ETH_TO_EUR = 1800;
 
 export function Voting({ tenders, contract, account, onVote, loading }) {
   const [tendersWithBids, setTendersWithBids] = useState([]);
@@ -97,7 +96,7 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{tender.title}</h3>
                   {tender.description && <p className="text-gray-600 dark:text-gray-400 mb-2">{tender.description}</p>}
                   <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
-                    <span>Rozpočet: {(tender.maxBudget * ETH_TO_EUR).toFixed(2)} €</span>
+                    <span>Rozpočet: {tender.maxBudget.toFixed(2)} €</span>
                     <span>{tender.offers.length} ponúk</span>
                     <span>
                       {tender.offers.reduce(
@@ -126,7 +125,7 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
                           {shortAddress(offer.vendor)} <ExternalLink size={12} className="text-gray-400 flex-shrink-0" />
                         </a>
                         <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                          {(offer.price * ETH_TO_EUR).toFixed(2)} €
+                          {offer.price.toFixed(2)} €
                         </span>
                       </div>
                       {offer.description && (

@@ -88,7 +88,7 @@ export function useNotifications(contract, account) {
         id: makeId('BidSubmitted', tenderId.toString(), bidId.toString(), Date.now()),
         type: 'bid_submitted',
         title: 'Nová ponuka',
-        message: `Ponuka #${bidId} na tender #${tenderId} od ${shortAddr(vendor)} (${(parseFloat(ethPrice) * 1800).toFixed(0)} €)`,
+        message: `Ponuka #${bidId} na tender #${tenderId} od ${shortAddr(vendor)} (${parseFloat(ethPrice).toFixed(2)} €)`,
         timestamp: Date.now(),
         read: false,
         meta: { tenderId: tenderId.toString(), bidId: bidId.toString(), vendor },

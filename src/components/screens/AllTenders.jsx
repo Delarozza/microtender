@@ -2,7 +2,6 @@ import React from 'react';
 import { getCategoryIcon, getCategoryLabel } from '../../utils/category';
 import { Calendar, Users } from 'lucide-react';
 
-const ETH_TO_EUR = 1800;
 const statusColors = {
   Koncept: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
   Aktívny: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400',
@@ -46,7 +45,7 @@ export function AllTenders({ tenders, onSelectTender, onNavigate }) {
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        {(tender.maxBudget * ETH_TO_EUR).toFixed(2)} €
+                        {tender.maxBudget.toFixed(2)} €
                       </p>
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-1 ${

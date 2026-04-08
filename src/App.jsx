@@ -56,7 +56,7 @@ function extractRevertReason(error) {
 }
 
 // Približný kurz pre konverziu (EUR)
-const ETH_TO_EUR = 1800;
+// Prices stored on-chain directly in EUR (no ETH conversion)
 
 function initTheme() {
   if (typeof window !== 'undefined' && localStorage.getItem('theme') === 'dark') {
@@ -96,8 +96,6 @@ export default function MicroTenderApp() {
   const [bidForm, setBidForm] = useState({ tenderId: '', priceEUR: '', deliveryTime: '', description: '' });
   
   // Stav pre 2-krokové vytváranie
-  const [createdTenderId, setCreatedTenderId] = useState(null);
-  const [creationStep, setCreationStep] = useState(1); // 1 = draft, 2 = publish
   
   // Vendor application state
   const [vendorApplicationForm, setVendorApplicationForm] = useState({
@@ -413,84 +411,73 @@ export default function MicroTenderApp() {
     setIpfsCID('');
   };
 
-  const createTender = async () => {
+  const createAndPublishTender = async () => {
     if (!contract) return;
     if (!isMember) {
       alert('❌ Iba členovia rady môžu vytvárať tendry!');
       return;
     }
-    
+    const days = parseInt(createForm.daysOpen, 10);
+    if (isNaN(days) || days < 3 || days > 14) {
+      alert('Počet dní na ponuky musí byť 3–14.');
+      return;
+    }
+    const votePlan = parseInt(createForm.votingDays, 10);
+    if (isNaN(votePlan) || votePlan < 3 || votePlan > 14) {
+      alert('Počet dní na hlasovanie musí byť 3–14 (použije sa pri spustení hlasovania).');
+      return;
+    }
+
+    let tenderId = null;
     try {
       setLoading(true);
-      const budgetInETH = parseFloat(createForm.budget) / ETH_TO_EUR;
-      const safeETH = budgetInETH.toFixed(18).replace(/0+$/, '').replace(/\.$/, '');
-      const budgetInWei = window.ethers.utils.parseEther(safeETH);
-      
-      // KROK 1: Vytvoriť draft
-      // Используем CID если файл был загружен
-      const tx = await contract.createTender(
+      const budgetInWei = window.ethers.utils.parseEther(createForm.budget);
+      const txCreate = await contract.createTender(
         createForm.title,
-        createForm.description || '',  // Popis tendru
+        createForm.description || '',
         budgetInWei,
         createForm.category,
-        ipfsCID || ''  // IPFS CID - используем загруженный CID или пустую строку
+        ipfsCID || ''
       );
-      const receipt = await tx.wait();
-      const txLink = explorerUrl.tx(receipt.transactionHash);
-      
-      // Získať ID tendru z eventu
-      const event = receipt.events?.find(e => e.event === 'TenderCreated');
-      const tenderId = event?.args?.tenderId?.toString();
-      
-      setCreatedTenderId(tenderId);
-      setCreationStep(2);
-      
-      const message = ipfsCID 
-        ? `✅ Koncept tendru vytvorený! ID: ${tenderId}\n\n📄 Dokument bol nahraný do IPFS\nCID: ${ipfsCID}\n\nTeraz ho uverejnite v kroku 2.\n\n🔗 Transakcia: ${txLink}`
-        : `✅ Koncept tendru vytvorený! ID: ${tenderId}\n\nTeraz ho uverejnite v kroku 2.\n\n🔗 Transakcia: ${txLink}`;
-      
-      alert(message);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      alert('Chyba: ' + extractRevertReason(error));
-      setLoading(false);
-    }
-  };
-  
-  const publishTender = async () => {
-    if (!contract || !createdTenderId) return;
-    
-    try {
-      setLoading(true);
-      
-      // KROK 2: Publikovať tender
-      const tx = await contract.publishTender(
-        createdTenderId,
-        parseInt(createForm.daysOpen)
+      const receiptCreate = await txCreate.wait();
+      const event = receiptCreate.events?.find((e) => e.event === 'TenderCreated');
+      tenderId = event?.args?.tenderId?.toString();
+      if (!tenderId) {
+        throw new Error('Nepodarilo sa získať ID nového tendra z transakcie.');
+      }
+
+      const txPublish = await contract.publishTender(tenderId, days);
+      const receiptPublish = await txPublish.wait();
+
+      const linkCreate = explorerUrl.tx(receiptCreate.transactionHash);
+      const linkPublish = explorerUrl.tx(receiptPublish.transactionHash);
+      const ipfsNote = ipfsCID ? `\n\nDokument (IPFS): ${ipfsCID}` : '';
+      alert(
+        `✅ Tender #${tenderId} bol vytvorený a uverejnený.\n\nOtvorený pre ponuky na ${days} dní.${ipfsNote}\n\n🔗 Vytvorenie: ${linkCreate}\n🔗 Uverejnenie: ${linkPublish}`
       );
-      const pubReceipt = await tx.wait();
-      
-      alert(`✅ Tender bol uverejnený!\n\nOtvorený pre ponuky na ${createForm.daysOpen} dní.\n\n🔗 Transakcia: ${explorerUrl.tx(pubReceipt.transactionHash)}`);
-      
-      // Reset formulára
-      setCreateForm({ 
-        title: '', 
+
+      setCreateForm({
+        title: '',
         description: '',
-        budget: '', 
+        budget: '',
         category: 'tlac',
         daysOpen: '7',
-        votingDays: '3'
+        votingDays: '3',
       });
       setSelectedFile(null);
       setIpfsCID('');
-      setCreatedTenderId(null);
-      setCreationStep(1);
       loadAllTenders();
+      setActiveScreen('Moje tendery');
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert('Chyba: ' + extractRevertReason(error));
+      if (tenderId) {
+        alert(
+          `Tender #${tenderId} bol vytvorený ako koncept, ale uverejnenie zlyhalo:\n\n${extractRevertReason(error)}\n\nMôžete ho uverejniť na stránke detailu tendra alebo v zozname Moje tendery.`
+        );
+      } else {
+        alert('Chyba: ' + extractRevertReason(error));
+      }
       setLoading(false);
     }
   };
@@ -722,9 +709,7 @@ export default function MicroTenderApp() {
         return;
       }
       
-      const priceInETH = parseFloat(bidForm.priceEUR) / ETH_TO_EUR;
-      const safePrice = priceInETH.toFixed(18).replace(/0+$/, '').replace(/\.$/, '');
-      const priceInWei = window.ethers.utils.parseEther(safePrice);
+      const priceInWei = window.ethers.utils.parseEther(bidForm.priceEUR);
       
       const tx = await contract.submitBid(
         bidForm.tenderId,
@@ -764,15 +749,23 @@ export default function MicroTenderApp() {
     }
   };
 
-  // Predčasné spustenie hlasovania (iba tvorca tendra, keď je tender Aktívny a sú ponuky)
+  // Spustenie hlasovania (iba tvorca, tender Aktívny, aspoň 3 ponuky)
   const startVoting = async (tenderId, votingDays) => {
     if (!contract) return;
     const days = parseInt(votingDays, 10);
-    if (isNaN(days) || days < 1 || days > 14) {
-      alert('Počet dní na hlasovanie musí byť 1–14.');
+    if (isNaN(days) || days < 3 || days > 14) {
+      alert('Počet dní na hlasovanie musí byť 3–14.');
       return;
     }
     try {
+      const bidCountBn = await contract.getBidCount(tenderId);
+      const bidCount = bidCountBn.toNumber ? bidCountBn.toNumber() : Number(bidCountBn);
+      if (bidCount < 3) {
+        alert(
+          `Na spustenie hlasovania sú potrebné aspoň 3 ponuky od dodávateľov (aktuálne: ${bidCount}).`
+        );
+        return;
+      }
       setLoading(true);
       const tx = await contract.startVoting(tenderId, days);
       const votingReceipt = await tx.wait();
@@ -874,8 +867,8 @@ export default function MicroTenderApp() {
   const publishTenderById = async (tenderId, daysOpen) => {
     if (!contract) return;
     const days = parseInt(daysOpen, 10);
-    if (isNaN(days) || days < 3 || days > 30) {
-      alert('Počet dní musí byť 3–30.');
+    if (isNaN(days) || days < 3 || days > 14) {
+      alert('Počet dní musí byť 3–14.');
       return;
     }
     try {
@@ -978,10 +971,7 @@ export default function MicroTenderApp() {
                 onNavigate={handleNavigate}
                 createForm={createForm}
                 setCreateForm={setCreateForm}
-                createTender={createTender}
-                publishTender={publishTender}
-                creationStep={creationStep}
-                createdTenderId={createdTenderId}
+                createAndPublishTender={createAndPublishTender}
                 loading={loading}
                 selectedFile={selectedFile}
                 ipfsCID={ipfsCID}
