@@ -1,0 +1,408 @@
+\chapter{Implementation}
+\label{chap:implementation}
+
+Táto kapitola detailne popisuje technickú realizáciu navrhnutého systému MicroTender. Zameriava sa na vývoj smart kontraktov, integráciu decentralizovaného úložiska a tvorbu klientskej aplikácie. Hlavný dôraz je kladený na štruktúru a správanie smart kontraktu, pretože ten predstavuje nemennú logiku celého riešenia.
+
+\section{Development environment and technologies}
+
+Pre vývoj decentralizovanej aplikácie (dApp) sme zvolili moderný technologický stack, ktorý zabezpečuje bezpečnosť, efektivitu a dobrú používateľskú skúsenosť.
+
+\begin{itemize}
+  \item \textbf{Solidity (verzia 0.8.19):} primárny jazyk pre písanie inteligentných
+  zmlúv~\cite{solidityDocs}. Verzia 0.8.x zavádza predvolenú kontrolu pretečenia
+  čísel (\emph{overflow} a \emph{underflow}) pri aritmetických operáciách mimo blokov
+  \texttt{unchecked}, čo zvyšuje bezpečnosť implementácie.
+
+  \item \textbf{Hardhat:} vývojové prostredie pre Ethereum, ktoré sme využili na
+  kompiláciu, automatizované testovanie a nasadzovanie zmlúv na testovaciu
+  sieť~\cite{hardhatDocs}.
+
+  \item \textbf{React (aktuálne verzia 19.x):} knižnica pre komponentové používateľské
+  rozhranie aplikácie~\cite{reactDocs}. Umožňuje reaktívne aktualizácie stavu na základe
+  udalostí z blockchainu (napr.\ po potvrdení transakcie) a~odpočúvania eventov kontraktu.
+
+  \item \textbf{Ethers.js:} knižnica na komunikáciu medzi frontendom a blockchainom
+  (RPC, čítanie stavu kontraktu, podpisovanie transakcií)~\cite{ethersDocs}.
+  V~prehliadači sa načítava UMD zostavenie \textbf{verzie 5.7.2} z CDN
+  (\texttt{Web3Provider}, \texttt{JsonRpcProvider}); v~\texttt{package.json} môže byť
+  uvedená aj novšia major verzia ako závislosť pre budúce zlúčenie, no aktuálna
+  implementácia \texttt{App.jsx} volá API vo formáte Ethers~v5.
+
+  \item \textbf{Pinata a IPFS:} služba na \emph{pinning} súborov v sieti IPFS
+  (\emph{InterPlanetary File System}); dokumentácia tendra sa nahráva cez REST API
+  Pinata a v inteligentnej zmluve sa ukladá len identifikátor obsahu
+  (CID)~\cite{pinataDocs}. Dostupnosť súborov pre používateľov závisí od pinningu,
+  konfigurácie API a verejného alebo vlastného IPFS gateway; v implementácii sa na
+  zobrazenie používa URL odvodené od CID (nie priamy zápis binárnych súborov do
+  blockchainu).
+
+  \item \textbf{Tailwind CSS a PostCSS:} utility-first prístup k štýlovaniu komponentov
+  a spracovanie štýlov v build reťazci frontendu.
+
+  \item \textbf{Create React App (\texttt{react-scripts}):} nástroj na lokálny vývoj
+  a produkčné zostavenie frontendu bez vlastnej konfigurácie zostavovača od nuly.
+
+  \item \textbf{Testovacia sieť Polygon Amoy:} EVM-kompatibilný reťazec, na ktorom je
+  možné nasadiť zmluvu a overiť dApp s reálnymi transakciami pri nižších nákladoch
+  ako na hlavnej sieti Ethereum.
+
+  \item \textbf{Web3 peňaženka (MetaMask alebo kompatibilná):} rozšírenie prehliadača,
+  ktoré používateľovi umožňuje pripojiť sa k sieti, spravovať účty a podpisovať
+  transakcie volané z aplikácie cez Ethers.js.
+\end{itemize}
+
+\section{Smart contract implementation}
+
+Jadro logiky celého systému je zapuzdrené v jednom smart kontrakte s názvom \texttt{MicroTender.sol}, napísanom v jazyku Solidity verzie 0.8.19.
+
+\subsection{Architectural decision: Monolithic vs Factory}
+
+Pri návrhu systému sme zvažovali použitie návrhového vzoru \textit{Factory}, kde by každý nový tender bol reprezentovaný samostatným smart kontraktom nasadeným na blockchain. Po dôkladnej analýze transakčných nákladov (Gas cost analysis) sme tento prístup prehodnotili a rozhodli sme sa pre \textbf{monolitickú architektúru}.
+
+V tomto modeli jeden hlavný kontrakt spravuje stav a dáta všetkých tendrov pomocou dátových štruktúr. Toto rozhodnutie prináša kľúčovú výhodu v podobe výraznej úspory nákladov:
+\begin{itemize}
+    \item \textbf{Nasadenie nového kontraktu (Factory):} rádu $10^6$ Gas jednorazovo pri nasadení ďalšieho kontraktu na tender (presná hodnota a~ekvivalent v~ fiat závisia od siete a ceny plynu),
+    \item \textbf{Vytvorenie záznamu tendra v úložisku monolitu:} výrazne nižšia jednorazová spotreba pri \texttt{createTender} oproti nasadeniu novej zmluvy.
+\end{itemize}
+Pre systém zameraný na "mikro" tendre je táto úspora zásadná pre jeho reálnu použiteľnosť.
+
+\subsection{Contract structure and state variables overview}
+
+Kontrakt \texttt{MicroTender} využíva nasledujúce kľúčové stavové premenné (Storage):
+
+\begin{itemize}
+    \item \texttt{address public owner} – vlastník kontraktu (deployer).
+    \item \texttt{uint256 public tenderCounter}, \texttt{uint256 public bidCounter} – počítadlá pre generovanie unikátnych ID.
+    \item \texttt{mapping(uint256 => Tender) public tenders} – hlavné úložisko tendrov indexované podľa ID.
+    \item \texttt{mapping(uint256 => Bid[]) public tenderBids} – pre každé \texttt{tenderId} zoznam ponúk.
+    \item \texttt{mapping(address => UserRole) public userRoles} – priradenie rolí (Member, Admin) k adresám používateľov.
+    \item \texttt{mapping(address => bool) public registeredVendors} – zoznam schválených dodávateľov.
+    \item \texttt{mapping(uint256 => mapping(address => bool)) public hasVoted} – záznam o tom, či daný člen už hlasoval v konkrétnom tendri.
+\end{itemize}
+
+Medzi hlavné verejné funkcie patria napr.\ \texttt{createTender},
+\texttt{publishTender}, \texttt{updateTenderIPFSCID}, \texttt{submitBid},
+\texttt{startVoting}, \texttt{castVote}, \texttt{finalizeTender},
+\texttt{fulfillTender}, \texttt{cancelTender}, \texttt{submitVendorApplication},
+\texttt{approveVendorApplication}, \texttt{rejectVendorApplication}. Na správu
+rolí a dodávateľov slúžia \texttt{grantRole}, \texttt{revokeRole},
+\texttt{revokeVendorStatus} a čítacie funkcie (\texttt{getTender},
+\texttt{getTenderBids}, \texttt{getBidCount}, \dots). Rozsah kontraktu zodpovedá
+celému životnému cyklu tendra, RBAC a validáciám bez závislosti na externých
+kontraktoch.
+
+\subsection{Constructor and initialization}
+
+Pri nasadení kontraktu sa v konštruktore nastaví \texttt{owner} na \texttt{msg.sender}, tejto adrese sa pridelí \texttt{UserRole.Admin}, nastaví sa \texttt{hasRole[msg.sender] = true} a emituje sa \texttt{RoleGranted}. Tým má prvý nasadzovateľ oprávnenie spravovať role a systém.
+
+\subsection{Data structures}
+
+Pre efektívne ukladanie údajov on-chain využívame štruktúry (\texttt{struct}), ktoré zoskupujú súvisiace dáta. To umožňuje načítať všetky informácie o tendri alebo ponuke v jednom volaní.
+
+\subsubsection{Tender structure}
+
+Záznam o jednom tendri je reprezentovaný nasledujúcou štruktúrou:
+
+\begin{lstlisting}[language=Solidity, caption={Štruktúra Tender v kontrakte MicroTender.sol}, label={lst:tender-struct}]
+struct Tender {
+    uint256 id;
+    address creator;
+    string title;
+    string description;
+    uint256 maxBudget;
+    string category;
+    string ipfsCID;      // Hash dokumentacie na IPFS
+    uint256 deadline;
+    uint256 votingDeadline;
+    TenderStatus status; // Enum stavov životného cyklu (viz text)
+    uint256 createdAt;
+}
+\end{lstlisting}
+
+Pole \texttt{ipfsCID} uchováva identifikátor obsahu (CID) dokumentácie uloženej v IPFS; na blockchaine sa tak neukladá celý súbor, čo šetrí náklady. Stav tendra je riadený výčtovým typom \texttt{TenderStatus}. Z~pohľadu používateľského rozhrania sa prezentujú najmä fázy \textbf{zber ponúk} (\texttt{Open}), \textbf{hlasovanie} (\texttt{Voting}), \textbf{ukončenie} (\texttt{Completed}), \textbf{splnenie} (\texttt{Fulfilled}) a~\textbf{zrušenie} (\texttt{Cancelled}). V~Solidity zostáva ešte \textbf{predchádzajúci interný stav} pred prvým zverejnením (technicky \texttt{Draft}); aplikácia ho nevyužíva ako samostatný krok --- po úspešnom vytvorení tendra nasleduje bezprostredne volanie \texttt{publishTender} v rámci jedného postupu „vytvoriť a uverejniť“. Všetky tendre sú v mapovaní \texttt{mapping(uint256 => Tender) public tenders}, čo umožňuje prístup k dátam s časovou zložitosťou $O(1)$ podľa ID tendra.
+
+\subsubsection{Bid structure}
+
+Ponuky dodávateľov sú reprezentované štruktúrou \texttt{Bid}:
+
+\begin{lstlisting}[language=Solidity, caption={Štruktúra Bid pre ponuku dodávateľa}, label={lst:bid-struct}]
+struct Bid {
+    uint256 id;
+    uint256 tenderId;
+    address vendor;        // Adresa dodavatela
+    uint256 price;         // Ponukova cena
+    uint256 deliveryTime;  // Cas dodania
+    string description;
+    uint256 submittedAt;
+}
+\end{lstlisting}
+
+Ponuky sú evidované v dynamickom poli \texttt{Bid[]} v rámci mapovania \texttt{tenderBids}. To umožňuje jednoduché iterovanie cez všetky ponuky konkrétneho tendra počas vyhodnocovania.
+
+\subsection{Access control}
+
+Bezpečnosť systému je zabezpečená prostredníctvom modifikátorov funkcií (\texttt{modifiers}). Implementovali sme Role-Based Access Control (RBAC) s nasledujúcimi rolami:
+
+\begin{itemize}
+    \item \textbf{onlyOwner:} Prístup má iba vlastník kontraktu (administrátor). Používa sa na správu rolí a kritické zmeny (\texttt{grantRole}, \texttt{revokeRole}).
+    \item \textbf{onlyMember:} Prístup majú iba členovia študentskej rady (a Admini, keďže \texttt{Admin >= Member}). Umožňuje vytvárať tendre, hlasovať a schvaľovať dodávateľov.
+    \item \textbf{Registrovaný dodávateľ:} Prístup k funkcii \texttt{submitBid} majú iba adresy, ktoré sú v mapovaní \texttt{registeredVendors} nastavené na \texttt{true}.
+\end{itemize}
+
+Modifikátory sú definované ako funkcie, ktoré pred vykonaním pôvodnej logiky skontrolujú podmienku a v prípade nesplnenia volajú \texttt{revert}. Ukážka definície modifikátora \texttt{onlyMember}:
+
+\begin{lstlisting}[language=Solidity, caption={Modifikátor onlyMember pre prístup členov rady}, label={lst:modifier-member}]
+modifier onlyMember() {
+    require(hasRole[msg.sender] && userRoles[msg.sender] >= UserRole.Member, "Only members");
+    _;
+}
+\end{lstlisting}
+
+Symbol \texttt{\_} označuje miesto vloženia tela pôvodnej funkcie. Registrácia členov prebieha cez funkciu \texttt{grantRole}, ktorú môže volať len \texttt{onlyOwner}.
+
+\subsection{Events}
+
+Smart kontrakt emituje udalosti (\texttt{event}) pri dôležitých zmenách stavu. Frontend ich môže odpočúvať cez Ethers.js a podľa nich aktualizovať UI bez potreby periodického dotazovania.
+
+\begin{lstlisting}[language=Solidity, caption={Vybraté deklarácie eventov v MicroTender.sol}, label={lst:events}]
+event TenderCreated(uint256 indexed tenderId, address indexed creator, string title);
+event BidSubmitted(uint256 indexed tenderId, uint256 bidId, address vendor, uint256 price);
+event VoteCasted(uint256 indexed tenderId, uint256 bidId, address voter);
+event TenderCompleted(uint256 indexed tenderId, uint256 winningBidId);
+\end{lstlisting}
+
+Parametre označené \texttt{indexed} umožňujú efektívne filtrovanie logov podľa týchto hodnôt (napr. získať všetky udalosti pre daný \texttt{tenderId}). Tým sa zjednodušuje integrácia s klientskou aplikáciou a zároveň sa vytvára auditovateľná stopa na blockchaine.
+
+\subsection{Key contract functions}
+
+\subsubsection{Creating a tender (createTender)}
+
+Funkcia inicializuje nový záznam v štruktúre \texttt{Tender}. Prijíma parametre ako názov, popis, rozpočet, kategóriu a \texttt{ipfsCID} (identifikátor dokumentácie v IPFS). Všetky vstupy sú validované pomocou \texttt{require} (neprázdne reťazce, rozpočet $> 0$). Funkcia využíva blok \texttt{unchecked} pre inkrementáciu počítadla \texttt{tenderCounter}, čo šetrí Gas, keďže pretečenie \texttt{uint256} je v tomto kontexte nereálne. Po zápise do \texttt{tenders} sa emituje \texttt{TenderCreated}. Zjednodušená ukážka jadra funkcie:
+
+\begin{lstlisting}[language=Solidity, caption={Jadro funkcie createTender (validácia a zápis)}, label={lst:create-tender-code}]
+function createTender(
+    string memory _title,
+    string memory _description,
+    uint256 _maxBudget,
+    string memory _category,
+    string memory _ipfsCID
+) external onlyMember returns (uint256) {
+    require(bytes(_title).length > 0, "Title required");
+    require(_maxBudget > 0, "Budget must be > 0");
+    
+    unchecked {
+        tenderCounter++;
+    }
+    
+    tenders[tenderCounter] = Tender({
+        id: tenderCounter,
+        creator: msg.sender,
+        title: _title,
+        description: _description,
+        maxBudget: _maxBudget,
+        category: _category,
+        ipfsCID: _ipfsCID,
+        deadline: 0,
+        votingDeadline: 0,
+        status: TenderStatus.Draft,
+        createdAt: block.timestamp
+    });
+    
+    emit TenderCreated(tenderCounter, msg.sender, _title);
+    return tenderCounter;
+}
+\end{lstlisting}
+
+Funkcia \texttt{createTender} zapíše metadáta tendra a pripraví záznam; v~záujme
+jednoduchého používateľského postupu aplikácia bezprostredne volá
+\texttt{publishTender} (dve transakcie za sebou pri jednom úkone „vytvoriť a
+uverejniť“), čím sa tender dostane do stavu \texttt{Open} s nastaveným
+\texttt{deadline} a stáva sa prístupný pre ponuky dodávateľov.
+
+\subsubsection{Publishing a tender (publishTender)}
+
+Funkcia \texttt{publishTender(uint256 \_tenderId, uint256 \_daysUntilDeadline)}
+nastaví lehotu \texttt{deadline} a aktivuje zber ponúk (stav \texttt{Open}). Ak by
+bol potrebný dodatočný zápis iného CID dokumentácie pred prvým zverejnením, kontrakt
+to umožňuje cez \texttt{updateTenderIPFSCID} len v~predchádzajúcom (predzverejnenom)
+stave záznamu; v~bežnom workflow aplikácie tento medzikrok používateľ nevidí.
+
+\subsubsection{Submitting a bid (submitBid)}
+
+Dodávateľ volá \texttt{submitBid(tenderId, price, deliveryTime, description)}. Kontrakt overí, či volajúci je v \texttt{registeredVendors}, či tender existuje a je v stave \texttt{Open}, či neprekročil \texttt{deadline} a či \texttt{price} nepresahuje \texttt{maxBudget} tendra. Nová štruktúra \texttt{Bid} sa pridá do poľa \texttt{tenderBids[tenderId]} a emituje sa \texttt{BidSubmitted}.
+
+\subsubsection{Voting (castVote)}
+
+Hlasovanie je povolené len v stave \texttt{Voting}. Funkcia \texttt{castVote(tenderId, bidId)} kontroluje, či volajúci je člen rady (\texttt{onlyMember}), či pre daný tender ešte nehlasoval (mapovanie \texttt{hasVoted[tenderId][msg.sender]}), či \texttt{bidId} patrí k \texttt{tenderId}. Následne sa zvýši počítadlo hlasov pre danú ponuku a označí sa, že člen už hlasoval.
+
+\subsubsection{Starting voting (startVoting)}
+
+Tvorca tendra môže spustiť hlasovanie len v stave \texttt{Open}. Kontrakt vyžaduje
+aspoň \texttt{MIN\_BIDS\_FOR\_VOTING} (v implementácii tri) podané ponuky a dĺžku
+hlasovania v rozmedzí konštánt \texttt{MIN\_VOTING\_DAYS} až \texttt{MAX\_VOTING\_DAYS}
+(v implementácii 3--14 dní). Lehota na podávanie ponúk pri \texttt{publishTender}
+je obmedzená rovnakým rozsahom dní (3--14).
+
+\subsubsection{Finalizing a tender (finalizeTender)}
+
+Funkcia \texttt{finalizeTender(tenderId)} môže byť volaná po uplynutí \texttt{votingDeadline}. Algoritmus prechádza všetky ponuky priradené k danému tendru (\texttt{tenderBids[tenderId]}), porovnáva počet hlasov a určí ponuku s najvyšším počtom hlasov za víťaznú. Tender sa prevedie do stavu \texttt{Completed} a emituje sa \texttt{TenderCompleted}.
+
+Pri \textbf{remíze} (rovnaký počet hlasov pre viacero ponúk) zostane ako víťazná
+prvá ponuka v poradí iterácie, ktorá dosiahla toto maximum --- v praxi ide o
+deterministický tie-break podľa poradia v poli \texttt{tenderBids} (zvyčajne skôr
+podaná ponuka). Samostatné druhé kolo hlasovania kontrakt nevykonáva.
+
+\subsection{Gas cost optimization}
+
+Okrem použitia \texttt{unchecked} tam, kde je to bezpečné, sme zvolili úsporný dátový model: na reťazci sú len identifikátory a metadáta, zatiaľ čo plná dokumentácia je v IPFS. Typ \texttt{uint256} je na EVM efektívny; zoskupenie dát do \texttt{struct} a prístup cez \texttt{mapping} umožňuje konštantný čas prístupu a predvídateľnú spotrebu Gas. Monolitický kontrakt namiesto factory pattern znižuje jednorazové náklady pri vytvorení tendra o rádovo 90\%.
+
+\section{Client application implementation (Frontend)}
+
+Klientská aplikácia slúži ako jediné používateľské rozhranie k smart kontraktu a k úložisku IPFS. Bola implementovaná vo frameworku React s použitím knižnice Ethers.js pre komunikáciu s blockchainom.
+
+\subsection{Application structure and entry point (App.jsx)}
+
+Projekt React aplikácie je organizovaný do priečinkov \texttt{src/},
+\texttt{src/components/} (vrátane \texttt{src/components/screens/}),
+\texttt{src/hooks/}, \texttt{src/utils/} a pod. \textbf{Routovanie URL sa
+nepoužíva} (žiadny \texttt{react-router-dom}); navigácia medzi obrazovkami
+(Dashboard, zoznamy tendrov, detail, vytvorenie tendra, hlasovanie, registrácia
+dodávateľa a i.) prebieha cez stav \texttt{activeScreen} a podmienkové vykreslenie
+komponentov v~\texttt{App.jsx}.
+
+Vstupným bodom je súbor \texttt{App.jsx}, kde sú sústredené stav pripojenia
+peňaženky, inštancia kontraktu, načítané tendre, vybraný tender, formuláre a
+volania funkcií kontraktu. Spoločná štruktúra rozhrania (postranné menu,
+hlavička, tlačidlo na pripojenie MetaMask) je rozdelená do komponentov
+\texttt{Sidebar} a \texttt{Header}. Doplňujúca logika (napr. notifikácie z
+eventov kontraktu) je v hooku \texttt{useNotifications}.
+
+\subsection{Wallet connection and contract instance}
+
+Pri pripojení peňaženky sa volá \texttt{provider.send("eth\_requestAccounts", [])}
+na inštancii \texttt{ethers.providers.Web3Provider(window.ethereum)} (knižnica
+Ethers~v5 načítaná z CDN), potom \texttt{getSigner()} a
+\texttt{new ethers.Contract(adresa, ABI, signer)}. Bez pripojenej peňaženky
+aplikácia vytvorí read-only inštanciu kontraktu cez
+\texttt{ethers.providers.JsonRpcProvider} na verejný RPC uzol siete Polygon Amoy,
+aby bolo možné tendre prezerať bez podpisovania transakcií.
+
+\subsection{IPFS integration (Pinata)}
+
+Nahrávanie dokumentácie tendra prebieha cez modul \texttt{src/utils/pinata.js}:
+súbor (PDF, DOC, DOCX) sa odošle ako \texttt{multipart/form-data} na
+\texttt{POST https://api.pinata.cloud/pinning/pinFileToIPFS} s autorizáciou JWT;
+odpoveď obsahuje \texttt{IpfsHash} (CID), ktorý sa uloží do kontraktu v poli
+\texttt{ipfsCID}. Samostatné volanie \texttt{pinJSONToIPFS} v kóde \textbf{nie je}
+implementované; metadáta tendra (názov, popis, rozpočet) sú uložené on-chain.
+
+Funkcia \texttt{getIPFSUrl} v praxi skladá URL cez verejný gateway
+\texttt{https://ipfs.io/ipfs/<CID>} (v kóde je pripravená aj možnosť prepnúť na
+gateway Pinata). Používateľ tak otvára dokumentáciu mimo reťazca, pričom integrita
+obsahu je viazaná na CID zapísaný v kontrakte.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Bezpečnosť a transparentnosť}
+\label{sec:security}
+
+Navrhované riešenie je postavené na princípe, že dôležité pravidlá
+obstarávania majú byť vynucované technicky, nie len organizačne.
+Bezpečnosť a~transparentnosť preto netvoria samostatnú doplnkovú
+funkciu systému, ale sú súčasťou jeho základného návrhu.
+
+%%%%%%%%%%%%%%
+\subsection{Bezpečnostné vlastnosti}
+\label{subsec:security_properties}
+
+Z~pohľadu bezpečnosti sú v~návrhu zohľadnené nasledujúce vlastnosti:
+
+\begin{itemize}
+    \item \textbf{Kontrola prístupu.} Prístup ku kritickým funkciám je
+    riadený cez modifikátory \texttt{onlyOwner} a~\texttt{onlyMember}.
+    Modifikátor \texttt{onlyOwner} obmedzuje správu rolí na vlastníka
+    kontraktu, modifikátor \texttt{onlyMember} obmedzuje operácie
+    spojené s~tendrami na členov rady. Dodávateľ môže podať ponuku
+    len po schválení registrácie, čo je overované podmienkou
+    \texttt{registeredVendors[msg.sender]}.
+
+    \item \textbf{Validácia vstupov.} Každá verejná funkcia kontraktu
+    obsahuje \texttt{require} podmienky, ktoré validujú vstupné údaje.
+    Overuje sa platnosť identifikátorov cez modifikátory
+    \texttt{validTender} a~\texttt{validApplication}, správnosť stavov,
+    dodržanie lehôt, nenulovosť adries a~maximálna dĺžka reťazcov
+    (\texttt{MAX\_STRING\_LENGTH}).
+
+    \item \textbf{Ochrana proti pretečeniu.} Solidity vo verzii 0.8.19
+    poskytuje vstavanú kontrolu pretečenia a~podtečenia celočíselných
+    typov. V~kontrakte sú zároveň využité bloky \texttt{unchecked} na
+    miestach, kde je pretečenie logicky vylúčené (inkrementácia
+    počítadiel), čo znižuje spotrebu gas bez vplyvu na bezpečnosť.
+
+    \item \textbf{Prevencia duplicitného hlasovania.} Mapovanie
+    \texttt{hasVoted[\_tenderId][msg.sender]} zabraňuje tomu, aby
+    jeden člen hlasoval v~tom istom tendri viackrát.
+
+    \item \textbf{Prevencia duplicitnej registrácie.} Kontrakt overuje,
+    že žiadateľ ešte nie je registrovaným dodávateľom a~nemá
+    rozpracovanú žiadosť, čím sa zabráni opakovanému podávaniu
+    žiadostí.
+
+    \item \textbf{Obmedzenie na tvorcu tendra.} Funkcie
+    \texttt{publishTender()}, \texttt{cancelTender()},
+    \texttt{startVoting()}, \texttt{finalizeTender()} a~\texttt{fulfillTender()}
+    sú obmedzené na adresu, ktorá tender vytvorila, prostredníctvom
+    podmienky \texttt{tender.creator == msg.sender}.
+\end{itemize}
+
+Návrh zároveň zámerne neobsahuje zložitejšie bezpečnostné mechanizmy,
+ako sú anonymné hlasovanie, on-chain escrow, multisig správa alebo
+automatizované platby. Ich neprítomnosť nie je chybou návrhu, ale vedomým
+zúžením rozsahu na jadrové vlastnosti systému, ktoré je možné v~rámci
+bakalárskej práce implementovať a~otestovať spoľahlivo. Tieto rozšírenia
+sú diskutované v~záverečnej kapitole ako možný smer budúcej práce.
+
+%%%%%%%%%%%%%%
+\subsection{Transparentnosť a auditovateľnosť}
+\label{subsec:transparency}
+
+Transparentnosť systému je zabezpečená tým, že kľúčové operácie sú
+zapisované do blockchainu a~zanechávajú auditovateľnú stopu. Kontrakt
+emituje nasledujúce udalosti (events):
+\begin{itemize}
+    \item \texttt{TenderCreated} -- pri vytvorení tendra,
+    \item \texttt{TenderPublished} -- pri publikovaní tendra,
+    \item \texttt{TenderCancelled} -- pri zrušení tendra,
+    \item \texttt{BidSubmitted} -- pri podaní ponuky,
+    \item \texttt{VoteCasted} -- pri odovzdaní hlasu,
+    \item \texttt{TenderCompleted} -- pri finalizácii tendra,
+    \item \texttt{VendorApplicationSubmitted} -- pri podaní žiadosti
+    dodávateľa,
+    \item \texttt{VendorApplicationApproved} -- pri schválení žiadosti,
+    \item \texttt{VendorApplicationRejected} -- pri zamietnutí žiadosti,
+    \item \texttt{VendorRegistered} -- pri registrácii dodávateľa (emitované pri schválení),
+    \item \texttt{RoleGranted} a~\texttt{RoleRevoked} -- pri zmene rolí,
+    \item \texttt{IPFSCIDUpdated} -- pri aktualizácii dokumentácie tendra.
+\end{itemize}
+
+Tieto udalosti sú uložené v~transakčných logoch blockchainu a~sú
+dostupné prostredníctvom blockchain explorerov, napríklad Polygonscan
+Amoy. Ľubovoľný používateľ tak môže spätne overiť, kto tender vytvoril,
+kedy bol publikovaný, aké ponuky boli podané, kto hlasoval a~ktorá
+ponuka zvíťazila.
+
+Dôležitú úlohu v~transparentnosti zohráva aj prepojenie blockchainu
+a~IPFS. Dokumentácia tendra nie je len pripojená ako externá príloha,
+ale je reprezentovaná identifikátorom CID, ktorý umožňuje overiť, či
+sa obsah dokumentu od času uloženia nezmenil. Tým sa posilňuje
+dôveryhodnosť celého obstarávacieho procesu -- zmena dokumentu by viedla
+k~odlišnému CID, čo by bolo okamžite zistiteľné porovnaním s~hodnotou
+uloženou na blockchaine.
+
+Výsledkom návrhu je riešenie, ktoré nie je zamerané na úplnú automatizáciu
+všetkých ekonomických a~administratívnych aspektov verejného obstarávania,
+ale na transparentnú a~technicky konzistentnú podporu mikro-tendrov
+v~prostredí študentskej rady. Všetky dôležité udalosti sú zaznamenané
+nemenným spôsobom, pravidlá sú vynucované kódom kontraktu a~dokumentácia
+je prepojená s~blockchainom prostredníctvom kryptograficky overiteľných
+identifikátorov.
