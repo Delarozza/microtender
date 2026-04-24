@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { ethers } from 'ethers';
 
 const STORAGE_KEY = 'microtender_notifications';
 const MAX_NOTIFICATIONS = 50;
@@ -63,9 +64,6 @@ export function useNotifications(contract, account) {
   useEffect(() => {
     if (!contract || !contract.provider || listenersAttached.current) return;
 
-    const isSigner = !!contract.signer;
-    if (!isSigner && !contract.provider.on) return;
-
     listenersAttached.current = true;
 
     const makeId = (event, ...args) => `${event}-${args.join('-')}`;
@@ -83,7 +81,7 @@ export function useNotifications(contract, account) {
     };
 
     const onBidSubmitted = (tenderId, bidId, vendor, price) => {
-      const ethPrice = window.ethers?.utils?.formatEther?.(price) ?? '?';
+      const ethPrice = (() => { try { return parseFloat(ethers.formatEther(price)).toFixed(2); } catch { return '?'; } })();
       addNotification({
         id: makeId('BidSubmitted', tenderId.toString(), bidId.toString(), Date.now()),
         type: 'bid_submitted',

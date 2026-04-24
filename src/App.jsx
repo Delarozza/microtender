@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { WalletProvider, WalletContext } from './context/WalletContext';
 import { useTenderContract } from './hooks/useTenderContract';
+import { useNotifications } from './hooks/useNotifications';
 
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -19,6 +20,7 @@ import { Reports } from './components/screens/Reports';
 function MainAppContent() {
   const { account, contract, isMember, isRegisteredVendor, userRole, myApplicationStatus, connectWallet, disconnectWallet } = useContext(WalletContext);
   const tenderMethods = useTenderContract(contract, account, isMember);
+  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications(contract, account);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -79,7 +81,12 @@ function MainAppContent() {
           onConnectWallet={connectWallet} 
           onDisconnect={disconnectWallet} 
           isMember={isMember} 
-          isRegisteredVendor={isRegisteredVendor} 
+          isRegisteredVendor={isRegisteredVendor}
+          notifications={notifications}
+          unreadCount={unreadCount}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
+          onClearAll={clearAll}
         />
         
         <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#171f2b]">

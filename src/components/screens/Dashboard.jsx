@@ -54,7 +54,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
               <>
                 <button
                   type="button"
-                  onClick={() => onNavigate('Nový tender')}
+                  onClick={() => onNavigate('/tenders/new')}
                   className="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <FileText size={20} />
@@ -62,7 +62,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
                 </button>
                 <button
                   type="button"
-                  onClick={() => onNavigate('Moje tendery')}
+                  onClick={() => onNavigate('/tenders/my')}
                   className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <FileText size={20} />
@@ -70,7 +70,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
                 </button>
                 <button
                   type="button"
-                  onClick={() => onNavigate('Hlasovanie')}
+                  onClick={() => onNavigate('/voting')}
                   className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <CheckCircle size={20} />
@@ -78,7 +78,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
                 </button>
                 <button
                   type="button"
-                  onClick={() => onNavigate('Žiadosti dodávateľov')}
+                  onClick={() => onNavigate('/vendor/approvals')}
                   className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <Shield size={20} />
@@ -89,7 +89,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
             {account && !isMember && !isRegisteredVendor && (
               <button
                 type="button"
-                onClick={() => onNavigate('Registrácia dodávateľa')}
+                onClick={() => onNavigate('/vendor/register')}
                 className="w-full flex items-center gap-3 px-4 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
               >
                 <UserPlus size={20} />
@@ -98,7 +98,7 @@ export function Dashboard({ onNavigate, tenders, account, isMember, isRegistered
             )}
             <button
               type="button"
-              onClick={() => onNavigate('Všetky tendery')}
+              onClick={() => onNavigate('/tenders')}
               className="w-full flex items-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <FileText size={20} />

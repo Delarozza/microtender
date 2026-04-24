@@ -39,7 +39,7 @@ export function TenderDetail({
         if (!cancelled) setHasVoted(voted);
       } catch (_) {} // eslint-disable-line no-unused-vars
 
-      if (selectedTender.statusIndex === 2 && bids.length > 0) {
+      if (selectedTender.statusIndex === 1 && bids.length > 0) {
         const counts = {};
         for (const bid of bids) {
           try {
@@ -52,7 +52,7 @@ export function TenderDetail({
         if (!cancelled) setVoteCounts(counts);
       }
 
-      if (selectedTender.statusIndex >= 3 && selectedTender.statusIndex !== 5) {
+      if (selectedTender.statusIndex >= 2 && selectedTender.statusIndex !== 4) {
         try {
           const w = await contract.getWinningBid(selectedTender.id);
           if (!cancelled && w && Number(w.bidId) > 0) {
@@ -75,19 +75,19 @@ export function TenderDetail({
   const isCreator = account && selectedTender.creator && account.toLowerCase() === selectedTender.creator.toLowerCase();
   const minBidsForVoting = 3;
   const canStartVoting =
-    selectedTender.statusIndex === 1 && bids.length >= minBidsForVoting && isCreator;
-  const canVote = selectedTender.statusIndex === 2 && isMember;
-  const canSubmitBid = selectedTender.statusIndex === 1 && isRegisteredVendor && !isMember;
+    selectedTender.statusIndex === 0 && bids.length >= minBidsForVoting && isCreator;
+  const canVote = selectedTender.statusIndex === 1 && isMember;
+  const canSubmitBid = selectedTender.statusIndex === 0 && isRegisteredVendor && !isMember;
 
   // Lifecycle actions — only for the tender creator
-  const canCancel = isCreator && (selectedTender.statusIndex === 0 || selectedTender.statusIndex === 1);
-  const canFinalize = isCreator && selectedTender.statusIndex === 2
+  const canCancel = isCreator && selectedTender.statusIndex === 0;
+  const canFinalize = isCreator && selectedTender.statusIndex === 1
     && selectedTender.votingDeadline && Number(selectedTender.votingDeadline) > 0
     && Date.now() / 1000 >= Number(selectedTender.votingDeadline);
-  const canFulfill = isCreator && selectedTender.statusIndex === 3;
-  const isCancelled = selectedTender.statusIndex === 5;
-  const isFulfilled = selectedTender.statusIndex === 4;
-  const isCompleted = selectedTender.statusIndex === 3;
+  const canFulfill = isCreator && selectedTender.statusIndex === 2;
+  const isCancelled = selectedTender.statusIndex === 4;
+  const isFulfilled = selectedTender.statusIndex === 3;
+  const isCompleted = selectedTender.statusIndex === 2;
 
   return (
     <div className="p-4 md:p-8">
@@ -198,7 +198,7 @@ export function TenderDetail({
           </div>
         )}
 
-        {selectedTender.statusIndex === 1 && isCreator && bids.length > 0 && bids.length < minBidsForVoting && (
+        {selectedTender.statusIndex === 0 && isCreator && bids.length > 0 && bids.length < minBidsForVoting && (
           <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
             <p className="text-sm text-amber-900 dark:text-amber-200">
               Na spustenie hlasovania sú potrebné aspoň <strong>{minBidsForVoting}</strong> ponuky od dodávateľov.

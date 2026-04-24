@@ -58,7 +58,7 @@ export function useTenderContract(contract, account, isMember) {
             maxBudget: parseFloat(ethers.formatEther(tender.maxBudget)),
             category: tender.category,
             status: STATUS_NAMES[tender.status],
-            statusIndex: tender.status,
+            statusIndex: Number(tender.status),
             deadline: tender.deadline.toString(),
             votingDeadline: tender.votingDeadline.toString(),
             createdAt: tender.createdAt.toString(),
@@ -90,7 +90,7 @@ export function useTenderContract(contract, account, isMember) {
         category: tender.category,
         ipfsCID: tender.ipfsCID || '',
         status: STATUS_NAMES[tender.status],
-        statusIndex: tender.status,
+        statusIndex: Number(tender.status),
         deadline: tender.deadline.toString(),
         votingDeadline: tender.votingDeadline.toString()
       });

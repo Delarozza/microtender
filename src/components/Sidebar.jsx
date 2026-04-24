@@ -41,7 +41,7 @@ export function Sidebar({ activeItem, onNavigate, account, isMember, isRegistere
           {visibleItems.map((item) => {
             const Icon = item.icon;
             // Check if active based on exact or partial path
-            const isActive = activeItem === item.path || (item.path !== '/' && activeItem.startsWith(item.path));
+            const isActive = activeItem === item.path;
 
             return (
               <li key={item.path}>
