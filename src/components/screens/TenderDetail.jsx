@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, ThumbsUp, ExternalLink, Shield, XCircle, CheckCircle, Award, Trophy, Upload, Send } from 'lucide-react';
+import { FileText, ThumbsUp, ExternalLink, Shield, XCircle, CheckCircle, Award, Trophy, Upload } from 'lucide-react';
 import { explorerUrl, shortAddress } from '../../utils/explorer';
 
 
@@ -24,14 +24,11 @@ export function TenderDetail({
   onFinalizeTender,
   onFulfillTender,
   onUpdateIPFSCID,
-  onPublishTender,
 }) {
   const [hasVoted, setHasVoted] = useState(false);
   const [voteCounts, setVoteCounts] = useState({});
   const [winningBid, setWinningBid] = useState(null);
   const [newCID, setNewCID] = useState('');
-  const [publishDays, setPublishDays] = useState('7');
-
   useEffect(() => {
     if (!contract || !account || !selectedTender) return;
     let cancelled = false;
@@ -169,40 +166,7 @@ export function TenderDetail({
           </div>
         </div>
 
-        {/* Publish draft tender */}
-        {selectedTender.statusIndex === 0 && isCreator && onPublishTender && (
-          <div className="mb-6 p-5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-            <div className="flex items-center gap-2 mb-3">
-              <Send size={16} className="text-blue-600 dark:text-blue-400" />
-              <span className="text-blue-800 dark:text-blue-300 font-semibold text-sm">Uverejniť tender</span>
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Tender je v stave Koncept. Po uverejnení bude otvorený pre ponuky dodávateľov. Dni na ponuky: 3–14.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="text-sm text-gray-700 dark:text-gray-300">Počet dní na ponuky:</label>
-              <input
-                type="number"
-                min={3}
-                max={14}
-                value={publishDays}
-                onChange={(e) => setPublishDays(e.target.value)}
-                className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-center bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-              <button
-                type="button"
-                onClick={() => onPublishTender(selectedTender.id, publishDays)}
-                disabled={loading}
-                className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 flex items-center gap-2 text-sm"
-              >
-                <Send size={14} />
-                {loading ? 'Uverejňujem...' : 'Uverejniť'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Update IPFS CID — only in Draft state for the creator */}
+        {/* Update IPFS CID — only in Open state for the creator */}
         {selectedTender.statusIndex === 0 && isCreator && onUpdateIPFSCID && (
           <div className="mb-6 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl">
             <div className="flex items-center gap-2 mb-3">

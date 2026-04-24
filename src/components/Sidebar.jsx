@@ -1,16 +1,17 @@
 import React from 'react';
 import { Home, FileText, Vote, BarChart3, Settings, PlusCircle, List, UserPlus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const menuItems = [
-  { icon: Home, label: 'Dashboard', screen: 'Dashboard' },
-  { icon: PlusCircle, label: 'Nový tender', screen: 'Nový tender', councilOnly: true },
-  { icon: FileText, label: 'Moje tendery', screen: 'Moje tendery', councilOnly: true },
-  { icon: List, label: 'Všetky tendery', screen: 'Všetky tendery' },
-  { icon: Vote, label: 'Hlasovanie', screen: 'Hlasovanie', councilOnly: true },
-  { icon: UserPlus, label: 'Žiadosti dodávateľov', screen: 'Žiadosti dodávateľov', councilOnly: true },
-  { icon: BarChart3, label: 'Reporty', screen: 'Reporty', councilOnly: true },
-  { icon: UserPlus, label: 'Registrácia dodávateľa', screen: 'Registrácia dodávateľa', vendorRegistrationOnly: true },
-  { icon: Settings, label: 'Nastavenia', screen: 'Nastavenia' },
+  { icon: Home, label: 'Dashboard', path: '/' },
+  { icon: PlusCircle, label: 'Nový tender', path: '/tenders/new', councilOnly: true },
+  { icon: FileText, label: 'Moje tendery', path: '/tenders/my', councilOnly: true },
+  { icon: List, label: 'Všetky tendery', path: '/tenders' },
+  { icon: Vote, label: 'Hlasovanie', path: '/voting', councilOnly: true },
+  { icon: UserPlus, label: 'Žiadosti dodávateľov', path: '/vendor/approvals', councilOnly: true },
+  { icon: BarChart3, label: 'Reporty', path: '/reports', councilOnly: true },
+  { icon: UserPlus, label: 'Registrácia dodávateľa', path: '/vendor/register', vendorRegistrationOnly: true },
+  { icon: Settings, label: 'Nastavenia', path: '/settings' },
 ];
 
 export function Sidebar({ activeItem, onNavigate, account, isMember, isRegisteredVendor }) {
@@ -39,13 +40,14 @@ export function Sidebar({ activeItem, onNavigate, account, isMember, isRegistere
         <ul className="space-y-2">
           {visibleItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeItem === item.screen;
+            // Check if active based on exact or partial path
+            const isActive = activeItem === item.path || (item.path !== '/' && activeItem.startsWith(item.path));
 
             return (
-              <li key={item.screen}>
-                <button
-                  type="button"
-                  onClick={() => onNavigate(item.screen)}
+              <li key={item.path}>
+                <Link
+                  to={item.path}
+                  onClick={() => onNavigate && onNavigate(item.path)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${
                     isActive
                       ? 'bg-purple-600 text-white font-medium'
@@ -54,7 +56,7 @@ export function Sidebar({ activeItem, onNavigate, account, isMember, isRegistere
                 >
                   <Icon size={20} className="flex-shrink-0" />
                   <span className="min-w-0 truncate">{item.label}</span>
-                </button>
+                </Link>
               </li>
             );
           })}

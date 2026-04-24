@@ -14,11 +14,16 @@
  * @returns {Promise<string>} CID (Content Identifier) файла
  */
 export const uploadToIPFS = async (file) => {
+  // PRODUCTION FIX: Route through a backend proxy
+  // const response = await fetch('/api/ipfs/upload', { method: 'POST', body: formData });
+  
+  // PoC FALLBACK (Only if strictly a student demo with no backend):
   const PINATA_JWT = process.env.REACT_APP_PINATA_JWT;
   
   if (!PINATA_JWT) {
     throw new Error('PINATA_JWT nie je nastavený. Pridajte REACT_APP_PINATA_JWT do .env.local');
   }
+  console.warn("SECURITY WARNING: Pinata JWT is exposed on the client. In production, move this to a Node.js backend.");
 
   // Валидация файла
   const maxSize = 10 * 1024 * 1024; // 10MB

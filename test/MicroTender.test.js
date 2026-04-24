@@ -79,7 +79,8 @@ describe("MicroTender", function () {
           description,
           maxBudget,
           category,
-          ipfsCID
+          ipfsCID,
+          7
         )
       )
         .to.emit(microTender, "TenderCreated")
@@ -91,7 +92,7 @@ describe("MicroTender", function () {
       expect(tender.maxBudget).to.equal(maxBudget);
       expect(tender.category).to.equal(category);
       expect(tender.ipfsCID).to.equal(ipfsCID);
-      expect(tender.status).to.equal(0); // Draft
+      expect(tender.status).to.equal(0); // Open
       expect(await microTender.tenderCounter()).to.equal(1);
     });
 
@@ -112,7 +113,8 @@ describe("MicroTender", function () {
           description,
           maxBudget,
           category,
-          ipfsCID
+          ipfsCID,
+          7
         )
       ).to.be.revertedWith("Only members");
     });
@@ -128,75 +130,18 @@ describe("MicroTender", function () {
         description,
         maxBudget,
         category,
-        ""
+        "",
+        7
       );
       await microTender.connect(member).createTender(
         "Tender 2",
         "Description 2",
         maxBudget,
         category,
-        ""
+        "",
+        7
       );
       expect(await microTender.tenderCounter()).to.equal(2);
-    });
-  });
-
-  describe("Tender Publishing", function () {
-    let tenderId;
-
-    beforeEach(async function () {
-      const maxBudget = ethers.parseEther("1.0");
-      const tx = await microTender.connect(member).createTender(
-        "Test Tender",
-        "Test Description",
-        maxBudget,
-        "Kancelárske",
-        ""
-      );
-      const receipt = await tx.wait();
-      // В ethers v6 события доступны через logs
-      const event = receipt.logs.find(log => {
-        try {
-          const parsed = microTender.interface.parseLog(log);
-          return parsed && parsed.name === "TenderCreated";
-        } catch {
-          return false;
-        }
-      });
-      const parsedEvent = microTender.interface.parseLog(event);
-      tenderId = parsedEvent.args.tenderId;
-    });
-
-    it("Should allow creator to publish tender", async function () {
-      await microTender.connect(member).publishTender(tenderId, 7);
-      const tender = await microTender.getTender(tenderId);
-      expect(tender.status).to.equal(1); // Open
-      expect(tender.deadline).to.be.gt(0);
-    });
-
-    it("Should not allow non-creator to publish", async function () {
-      await expect(
-        microTender.connect(other).publishTender(tenderId, 7)
-      ).to.be.revertedWith("Only creator");
-    });
-
-    it("Should reject invalid deadline (less than 3 days)", async function () {
-      await expect(
-        microTender.connect(member).publishTender(tenderId, 2)
-      ).to.be.revertedWith("Invalid deadline");
-    });
-
-    it("Should reject invalid deadline (more than 14 days)", async function () {
-      await expect(
-        microTender.connect(member).publishTender(tenderId, 15)
-      ).to.be.revertedWith("Invalid deadline");
-    });
-
-    it("Should not allow publishing already published tender", async function () {
-      await microTender.connect(member).publishTender(tenderId, 7);
-      await expect(
-        microTender.connect(member).publishTender(tenderId, 7)
-      ).to.be.revertedWith("Already published");
     });
   });
 
@@ -235,7 +180,8 @@ describe("MicroTender", function () {
         "Test Description",
         maxBudget,
         "Kancelárske",
-        ""
+        "",
+        7
       );
       const receipt = await tx.wait();
       // В ethers v6 события доступны через logs
@@ -249,7 +195,6 @@ describe("MicroTender", function () {
       });
       const parsedEvent = microTender.interface.parseLog(event);
       tenderId = parsedEvent.args.tenderId;
-      await microTender.connect(member).publishTender(tenderId, 7);
 
       // Регистрируем vendor через application flow
       await microTender.connect(vendor).submitVendorApplication("Firma", "info@f.sk", "Opis");
@@ -285,39 +230,6 @@ describe("MicroTender", function () {
           "Moja ponuka"
         )
       ).to.be.revertedWith("Not registered as vendor");
-    });
-
-    it("Should not allow bid on draft tender", async function () {
-      const maxBudget = ethers.parseEther("1.0");
-      const bidPrice = ethers.parseEther("0.5");
-      // Создаем новый tender, но не публикуем
-      const tx2 = await microTender.connect(member).createTender(
-        "Draft Tender",
-        "Description",
-        maxBudget,
-        "Kancelárske",
-        ""
-      );
-      const receipt2 = await tx2.wait();
-      const event2 = receipt2.logs.find(log => {
-        try {
-          const parsed = microTender.interface.parseLog(log);
-          return parsed && parsed.name === "TenderCreated";
-        } catch {
-          return false;
-        }
-      });
-      const parsedEvent2 = microTender.interface.parseLog(event2);
-      const draftTenderId = parsedEvent2.args.tenderId;
-
-      await expect(
-        microTender.connect(vendor).submitBid(
-          draftTenderId,
-          bidPrice,
-          7,
-          "Moja ponuka"
-        )
-      ).to.be.revertedWith("Not open");
     });
 
     it("Should not allow bid exceeding max budget", async function () {
@@ -374,7 +286,8 @@ describe("MicroTender", function () {
         "Description",
         maxBudget,
         "Kancelárske",
-        ""
+        "",
+        7
       );
       const receipt = await tx.wait();
       // В ethers v6 события доступны через logs
@@ -388,7 +301,6 @@ describe("MicroTender", function () {
       });
       const parsedEvent = microTender.interface.parseLog(event);
       tenderId = parsedEvent.args.tenderId;
-      await microTender.connect(member).publishTender(tenderId, 7);
 
       // Регистрируем vendors через application flow
       await microTender.connect(vendor).submitVendorApplication("Firma A", "a@f.sk", "Opis");
@@ -451,7 +363,8 @@ describe("MicroTender", function () {
         "Description",
         maxBudget,
         "Kancelárske",
-        ""
+        "",
+        7
       );
       const receipt = await tx.wait();
       const event = receipt.logs.find(log => {
@@ -463,7 +376,6 @@ describe("MicroTender", function () {
         }
       });
       const tid = microTender.interface.parseLog(event).args.tenderId;
-      await microTender.connect(member).publishTender(tid, 7);
       await microTender.connect(vendor).submitBid(tid, bidPrice, 7, "P1");
       await microTender.connect(vendor2).submitBid(tid, bidPrice, 5, "P2");
       await expect(
@@ -479,7 +391,8 @@ describe("MicroTender", function () {
         "Description",
         maxBudget,
         "Kancelárske",
-        ""
+        "",
+        7
       );
       const receipt = await tx.wait();
       const event = receipt.logs.find(log => {
@@ -491,7 +404,6 @@ describe("MicroTender", function () {
         }
       });
       const tid = microTender.interface.parseLog(event).args.tenderId;
-      await microTender.connect(member).publishTender(tid, 7);
       // vendor and vendor2 already registered in this describe's beforeEach
       await microTender.connect(vendor).submitBid(tid, bidPrice, 7, "P1");
       await microTender.connect(vendor2).submitBid(tid, bidPrice, 5, "P2");
@@ -535,7 +447,8 @@ describe("MicroTender", function () {
         "Description",
         maxBudget,
         "Kancelárske",
-        ""
+        "",
+        7
       );
       const receipt = await tx.wait();
       const event = receipt.logs.find(log => {
@@ -548,7 +461,6 @@ describe("MicroTender", function () {
       });
       const parsedEvent = microTender.interface.parseLog(event);
       const openTenderId = parsedEvent.args.tenderId;
-      await microTender.connect(member).publishTender(openTenderId, 7);
 
       await expect(
         microTender.connect(member).castVote(openTenderId, bidId1)
@@ -578,7 +490,8 @@ describe("MicroTender", function () {
         "Description",
         maxBudget,
         "Kancelárske",
-        ""
+        "",
+        7
       );
       const receipt = await tx.wait();
       // В ethers v6 события доступны через logs
@@ -592,7 +505,6 @@ describe("MicroTender", function () {
       });
       const parsedEvent = microTender.interface.parseLog(event);
       tenderId = parsedEvent.args.tenderId;
-      await microTender.connect(member).publishTender(tenderId, 7);
 
       // Регистрируем vendors через application flow
       await microTender.connect(vendor).submitVendorApplication("Firma A", "a@f.sk", "Opis");
@@ -661,7 +573,7 @@ describe("MicroTender", function () {
         .withArgs(tenderId, bidId1);
 
       const tender = await microTender.getTender(tenderId);
-      expect(tender.status).to.equal(3); // Completed
+      expect(tender.status).to.equal(2); // Completed
     });
 
     it("Should not allow non-creator to finalize", async function () {

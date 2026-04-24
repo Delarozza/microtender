@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 contract MicroTender {
 
     // ========== ENUMS ==========
-    enum TenderStatus { Draft, Open, Voting, Completed, Fulfilled, Cancelled }
+    enum TenderStatus { Open, Voting, Completed, Fulfilled, Cancelled }
     enum UserRole { Member, Admin }
     enum ApplicationStatus { Pending, Approved, Rejected }
     
@@ -167,17 +167,24 @@ contract MicroTender {
         string memory _description,
         uint256 _maxBudget,
         string memory _category,
-        string memory _ipfsCID
+        string memory _ipfsCID,
+        uint256 _daysUntilDeadline
     ) external onlyMember returns (uint256) {
         require(bytes(_title).length > 0, "Title required");
         require(bytes(_title).length <= MAX_STRING_LENGTH, "Title too long");
         require(_maxBudget > 0, "Budget must be > 0");
         require(bytes(_category).length > 0, "Category required");
+        require(
+            _daysUntilDeadline >= MIN_DEADLINE_DAYS && _daysUntilDeadline <= MAX_DEADLINE_DAYS,
+            "Invalid deadline"
+        );
         
         // Используем unchecked для безопасного инкремента
         unchecked {
             tenderCounter++;
         }
+        
+        uint256 deadlineTime = block.timestamp + (_daysUntilDeadline * 1 days);
         
         tenders[tenderCounter] = Tender({
             id: tenderCounter,
@@ -187,37 +194,15 @@ contract MicroTender {
             maxBudget: _maxBudget,
             category: _category,
             ipfsCID: _ipfsCID,
-            deadline: 0,
+            deadline: deadlineTime,
             votingDeadline: 0,
-            status: TenderStatus.Draft,
+            status: TenderStatus.Open,
             createdAt: block.timestamp
         });
         
         emit TenderCreated(tenderCounter, msg.sender, _title);
+        emit TenderPublished(tenderCounter, deadlineTime);
         return tenderCounter;
-    }
-    
-    /**
-     * @dev Опубликовать тендер (открыть для предложений)
-     * @param _tenderId ID тендера
-     * @param _daysUntilDeadline Количество дней до дедлайна
-     */
-    function publishTender(uint256 _tenderId, uint256 _daysUntilDeadline) 
-        external 
-        validTender(_tenderId) 
-    {
-        Tender storage tender = tenders[_tenderId];
-        require(tender.creator == msg.sender, "Only creator");
-        require(tender.status == TenderStatus.Draft, "Already published");
-        require(
-            _daysUntilDeadline >= MIN_DEADLINE_DAYS && _daysUntilDeadline <= MAX_DEADLINE_DAYS,
-            "Invalid deadline"
-        );
-        
-        tender.status = TenderStatus.Open;
-        tender.deadline = block.timestamp + (_daysUntilDeadline * 1 days);
-        
-        emit TenderPublished(_tenderId, tender.deadline);
     }
     
     /**
@@ -227,17 +212,35 @@ contract MicroTender {
     function cancelTender(uint256 _tenderId) external validTender(_tenderId) {
         Tender storage tender = tenders[_tenderId];
         require(tender.creator == msg.sender, "Only creator");
-        require(
-            tender.status == TenderStatus.Draft || tender.status == TenderStatus.Open,
-            "Cannot cancel"
-        );
+        
+        bool canCancel = (tender.status == TenderStatus.Open);
+        
+        if (tender.status == TenderStatus.Voting) {
+            require(block.timestamp >= tender.votingDeadline, "Voting not finished");
+            
+            // Verify absolutely no votes were cast
+            uint256 maxVotes = 0;
+            Bid[] storage bids = tenderBids[_tenderId];
+            uint256 bidsLength = bids.length;
+            
+            for (uint256 i = 0; i < bidsLength; ) {
+                if (voteCount[_tenderId][bids[i].id] > maxVotes) {
+                    maxVotes = voteCount[_tenderId][bids[i].id];
+                }
+                unchecked { i++; }
+            }
+            require(maxVotes == 0, "Has votes, must finalize");
+            canCancel = true;
+        }
+        
+        require(canCancel, "Cannot cancel in this state");
         
         tender.status = TenderStatus.Cancelled;
         emit TenderCancelled(_tenderId, msg.sender);
     }
     
     /**
-     * @dev Обновить IPFS CID для тендера (только создатель, только в статусе Draft)
+     * @dev Обновить IPFS CID для тендера (только создатель, в статусе Open до первых заявок)
      * @param _tenderId ID тендера
      * @param _ipfsCID Новый CID документа
      */
@@ -247,7 +250,9 @@ contract MicroTender {
     {
         Tender storage tender = tenders[_tenderId];
         require(tender.creator == msg.sender, "Only creator");
-        require(tender.status == TenderStatus.Draft, "Can only update in draft");
+        require(tender.status == TenderStatus.Open, "Can only update in Open state");
+        require(tenderBids[_tenderId].length == 0, "Cannot update after bids received");
+
         
         tender.ipfsCID = _ipfsCID;
         emit IPFSCIDUpdated(_tenderId, _ipfsCID);
