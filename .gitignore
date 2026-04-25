@@ -55,3 +55,9 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# Project Documentation and Assets
+/thesis/
+/Diagrams/
+*.pdf
+fix_tests.py

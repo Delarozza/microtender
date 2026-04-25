@@ -1,142 +1,127 @@
 # MicroTender
 
-Decentralized micro-procurement platform for student councils. Built on Polygon Amoy testnet, it enables transparent creation, bidding, voting, and fulfillment of small-scale tenders — with every action recorded on-chain.
+A decentralized micro-procurement platform for student councils built for the Web3 ecosystem on the Polygon Amoy testnet. MicroTender enables transparent, secure, and trustless creation of small-scale tenders, submission of bids, and decentralized voting to select winning proposals — with every action recorded on-chain.
 
-## Architecture
+## 🌟 Features
 
-```
-React (CRA) + ethers.js v5  <-->  MicroTender.sol (Solidity 0.8.19)  <-->  Polygon Amoy
-      |                                     |
-      |--- Tailwind CSS (dark mode)         |--- Role-based access (Owner, Admin, Member, Vendor)
-      |--- Pinata / IPFS (documents)        |--- Tender lifecycle (Draft -> Open -> Voting -> Completed -> Fulfilled)
-```
+*   **Decentralized Tenders:** Transparent creation of public tenders directly on the blockchain.
+*   **Immutable Bidding:** Registered vendors can submit bids with transparent pricing, delivery times, and securely attached documents via IPFS.
+*   **Decentralized Voting:** Council members cast votes on submitted bids securely.
+*   **Automated Winner Selection:** Smart contract logic automatically finalizes the tender and determines the winner based on transparent voting results.
+*   **Secure Document Storage:** Decentralized file storage using IPFS (via Pinata) ensures that tender and bid documents cannot be tampered with.
 
-## Smart Contract
+## 🛠 Tech Stack
+
+*   **Smart Contracts:** Solidity (0.8.19), Hardhat
+*   **Frontend:** React 19 (CRA), Tailwind CSS, lucide-react
+*   **Web3 Integration:** ethers.js v5
+*   **Network:** Polygon Amoy Testnet
+*   **Decentralized Storage:** IPFS (via Pinata)
+*   **Hosting:** Vercel
+
+## 🏗 Architecture Overview
+
+MicroTender is composed of a robust smart contract backend and a responsive React frontend with dark mode support:
+
+*   **Smart Contract:** Acts as the decentralized backend, handling all core business logic (tender creation, bid submission, voting, state transitions) and role-based access. It serves as the single source of truth, ensuring immutability and transparency.
+*   **Frontend (React):** Provides an intuitive user interface for interacting with the blockchain. It uses `ethers.js` to communicate with the smart contract via a Web3 provider (like MetaMask) and interfaces with Pinata to upload and retrieve IPFS document hashes.
+*   **Interaction Flow:** The frontend listens for smart contract events (`useNotifications` hook) to update the UI in real-time. Every tender detail page includes Polygonscan links to the contract, creator address, and transaction hashes for full transparency.
+
+## 📜 Smart Contract Logic
 
 **Address:** `0x1F8CCE975c9cB052Bf8c6ED04B2a9c614436C5D0`
 **Network:** Polygon Amoy (Chain ID 80002)
-**Source:** `Crypto inf/contracts/MicroTender.sol`
+
+The core logic is governed by the MicroTender smart contract, defining strict roles and a lifecycle:
 
 ### Roles
-
-| Role | Description |
-|------|-------------|
-| Owner | Deployer. Can grant/revoke all roles. |
-| Admin | Can manage roles (grant Member). |
-| Member | Council member. Can create tenders, start voting, cast votes, finalize tenders. |
-| Vendor | Registered supplier. Can submit bids on open tenders. |
+*   **Owner:** Deployer. Can grant/revoke all roles.
+*   **Admin:** Can manage roles (grant Member).
+*   **Member:** Council member. Can create tenders, start voting, cast votes, and finalize tenders.
+*   **Vendor:** Registered supplier. Can submit bids on open tenders.
 
 ### Tender Lifecycle
+1.  **Draft:** Created by a member. Can update IPFS document, publish, or cancel.
+2.  **Open:** Accepts bids from vendors until the deadline.
+3.  **Voting:** Members vote on submitted bids (3-14 days duration).
+4.  **Completed:** Voting ended, winner determined by the highest vote count.
+5.  **Fulfilled:** Creator confirms the winning vendor delivered.
 
-```
-Draft --> Open --> Voting --> Completed --> Fulfilled
-  |         |                                  
-  |         +------> Cancelled                 
-  +-------------> Cancelled                    
-```
+## 🚀 Getting Started
 
-- **Draft:** Created by a member. Can update IPFS document, publish, or cancel.
-- **Open:** Accepts bids from vendors until the deadline.
-- **Voting:** Members vote on submitted bids. Creator sets voting duration (3–14 days).
-- **Completed:** Voting ended, winner determined by vote count.
-- **Fulfilled:** Creator confirms the winning vendor delivered.
-- **Cancelled:** Creator cancelled the tender (only from Draft or Open).
+Follow these instructions to set up the project locally for development and testing.
 
-### Key Functions
+### Prerequisites
 
-| Function | Access | Description |
-|----------|--------|-------------|
-| `createTender` | Member | Create a draft tender with title, description, budget, category, IPFS CID. |
-| `publishTender` | Creator | Open the draft for bids with a deadline (3–14 days). |
-| `submitBid` | Vendor | Submit a bid with price, delivery time, and description. |
-| `startVoting` | Creator | Transition from Open to Voting (requires at least 3 bids). |
-| `castVote` | Member | Vote for a bid (one vote per member per tender). |
-| `finalizeTender` | Creator | Close voting, determine winner by highest vote count. |
-| `fulfillTender` | Creator | Confirm delivery by the winning vendor. |
-| `cancelTender` | Creator | Cancel a Draft or Open tender. |
-| `updateTenderIPFSCID` | Creator | Update the attached document while still in Draft. |
-| `submitVendorApplication` | Anyone | Apply to become a registered vendor. |
-| `approveVendorApplication` | Member | Approve a vendor application. |
-| `rejectVendorApplication` | Member | Reject a vendor application. |
-| `grantRole` | Owner | Assign Member or Admin role to an address. |
+*   [Node.js](https://nodejs.org/) (v16 or higher recommended)
+*   [MetaMask](https://metamask.io/) browser extension (configured for Polygon Amoy)
+*   Git
 
-### Events
+### Installation
 
-`TenderCreated`, `TenderPublished`, `TenderCancelled`, `TenderCompleted`, `BidSubmitted`, `VoteCasted`, `VendorApplicationSubmitted`, `VendorApplicationApproved`, `VendorApplicationRejected`, `VendorRegistered`, `RoleGranted`, `RoleRevoked`, `IPFSCIDUpdated`.
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository_url>
+    cd microtender-app
+    ```
 
-## Frontend
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-Single-page React application with sidebar navigation and full dark mode support.
+3.  **Smart Contract Deployment (Optional/Local):**
+    ```bash
+    npx hardhat node
+    npx hardhat run scripts/deploy.js --network localhost
+    ```
+    *To test the contract natively:* `npx hardhat test`
 
-### Project Structure
+4.  **Start the frontend development server:**
+    ```bash
+    npm start
+    ```
+    The application will be available at `http://localhost:3000`.
 
-```
-src/
-  App.jsx                          Main component: wallet connection, contract interaction, routing
-  components/
-    Header.jsx                     Top bar: search, notifications, wallet info, disconnect
-    Sidebar.jsx                    Navigation menu, user profile display
-    screens/
-      Dashboard.jsx                Overview stats, quick actions, recent tenders
-      CreateTender.jsx             New tender form: `createTender` + `publishTender` in one action (two transactions)
-      MyTenders.jsx                Tenders created by the connected wallet
-      AllTenders.jsx               Full list of all tenders in the system
-      TenderDetail.jsx             Tender info, bids, voting, lifecycle actions, on-chain verification links
-      Voting.jsx                   Dedicated voting screen for tenders in Voting state
-      VendorRegistration.jsx       Vendor application form
-      VendorApproval.jsx           Approve/reject vendor applications (council members)
-      Reports.jsx                  Analytics: stats, charts by status and category, top tenders
-      Settings.jsx                 User profile, role management, contract info, theme toggle
-  hooks/
-    useNotifications.js            Real-time contract event listener, persists to localStorage
-  utils/
-    explorer.js                    Polygonscan URL helpers, short address formatter
-    pinata.js                      IPFS file upload via Pinata API
-    category.js                    Tender category icons and labels
+## 💻 Usage (Demo Flow)
+
+1.  **Connect Wallet:** Click "Connect Wallet" to link your MetaMask account. The app auto-detects and prompts to switch to Polygon Amoy.
+2.  **Create Tender:** As a Member, navigate to "New Tender", fill in the details, attach a document, and submit. Publish to open it for bids.
+3.  **Submit Bids:** As an approved Vendor, view the active tender, enter your price and delivery time, and submit your bid.
+4.  **Vote:** Once bidding closes, the Creator transitions the tender to Voting. Council Members can then review bids and cast votes.
+5.  **Finalize & Fulfill:** Once the voting period is over, the Creator finalizes the tender to declare the winner. After delivery, the tender is marked as Fulfilled.
+
+## ⚙️ Environment Variables
+
+Create a `.env.local` file in the root directory and configure the following variables for IPFS uploads:
+
+```env
+# IPFS / Pinata
+REACT_APP_PINATA_API_KEY=your_pinata_api_key
+REACT_APP_PINATA_SECRET_API_KEY=your_pinata_secret_key
+REACT_APP_PINATA_JWT=your_pinata_jwt_token
 ```
 
-### Key Technical Details
+*Note: RPC endpoints (drpc.org, polygon.technology, etc.) are configured internally with fallback logic.*
 
-- **Wallet:** MetaMask integration via `ethers.js`. Auto-detects network and prompts to switch to Polygon Amoy.
-- **RPC:** Multiple fallback endpoints (`drpc.org`, `polygon.technology`, `publicnode.com`, `blockpi.network`) with retry logic for intermittent failures.
-- **Notifications:** `useNotifications` hook subscribes to contract events and stores notifications in `localStorage` (max 50).
-- **IPFS:** Documents uploaded to Pinata, CID stored on-chain. Viewable via `ipfs.io` gateway.
-- **Dark mode:** Tailwind `class` strategy with `localStorage` persistence. Toggle in Settings.
-- **Amounts:** Budget and bid prices are entered and displayed in EUR; on-chain values use `parseEther` / `formatEther` as numeric storage (not tied to live ETH price).
-- **Transparency:** Every tender detail page includes Polygonscan links to the contract, creator address, and transaction hashes.
+## 🔒 Security Notes
 
-## Configuration
+*   **IPFS JWT Exposure:** Currently, the Pinata JWT/API keys are handled on the frontend for Proof-of-Concept (PoC) purposes. **Do not use this approach in production.**
+*   **Recommendation:** For a production environment, implement a backend proxy server to handle IPFS uploads and securely manage API keys to prevent exposure.
 
-| File | Purpose |
-|------|---------|
-| `tailwind.config.js` | Tailwind with `darkMode: 'class'` |
-| `hardhat.config.js` | Solidity 0.8.19, optimizer enabled (200 runs) |
-| `.env.local` | `REACT_APP_PINATA_JWT` for IPFS uploads |
+## 🔮 Future Improvements
 
-## Development
+*   **Backend Indexing:** Integrate [The Graph](https://thegraph.com/) to index smart contract events for significantly faster UI rendering and complex querying without relying on RPC node event filtering.
+*   **Enhanced UI/UX:** Refine the user interface with better loading states and mobile responsiveness.
+*   **Contract Optimizations:** Refactor smart contract storage to further minimize gas consumption during tender creation and voting.
 
-```bash
-npm install
-npm start           # http://localhost:3000
-```
+## 📸 Screenshots
 
-## Testing
+*(Placeholder for Application Screenshots)*
 
-```bash
-npx hardhat test    # Smart contract tests
-```
+*   **Dashboard**
+*   **Tender Details**
 
-Test file: `test/MicroTender.test.js`. Covers role management, tender lifecycle, bidding, voting, finalization, vendor registration, and edge cases.
+## 📄 License
 
-## Deployment
-
-Frontend is deployed on Vercel (connected to the GitHub repository). The smart contract is deployed on Polygon Amoy via Remix IDE.
-
-## Tech Stack
-
-- React 19, Tailwind CSS, lucide-react
-- ethers.js v5 (loaded via CDN in `public/index.html`)
-- Solidity 0.8.19, Hardhat
-- Polygon Amoy testnet
-- Pinata (IPFS)
-- Vercel (hosting)
+This project is licensed under the MIT License - see the LICENSE file for details.
