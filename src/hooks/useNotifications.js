@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
+import { CONTRACT_ADDRESS, CONTRACT_ABI, AMOY_RPC, AMOY_RPC_FALLBACK } from '../constants/contracts';
 
 const STORAGE_KEY = 'microtender_notifications';
 const MAX_NOTIFICATIONS = 50;
@@ -24,9 +25,8 @@ function shortAddr(addr) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-export function useNotifications(contract, account) {
+export function useNotifications(contract, account, onNewNotification) {
   const [notifications, setNotifications] = useState(loadFromStorage);
-  const listenersAttached = useRef(false);
 
   const addNotification = useCallback((notif) => {
     setNotifications((prev) => {
@@ -34,9 +34,12 @@ export function useNotifications(contract, account) {
       if (isDuplicate) return prev;
       const next = [notif, ...prev].slice(0, MAX_NOTIFICATIONS);
       saveToStorage(next);
+      if (onNewNotification) {
+        onNewNotification(notif);
+      }
       return next;
     });
-  }, []);
+  }, [onNewNotification]);
 
   const markAsRead = useCallback((id) => {
     setNotifications((prev) => {
@@ -62,9 +65,26 @@ export function useNotifications(contract, account) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
-    if (!contract || !contract.provider || listenersAttached.current) return;
+    let activeContract = null;
+    let activeProvider = null;
 
-    listenersAttached.current = true;
+    try {
+      try {
+        activeProvider = new ethers.JsonRpcProvider(AMOY_RPC);
+      } catch (_) {
+        activeProvider = new ethers.JsonRpcProvider(AMOY_RPC_FALLBACK);
+      }
+      
+      // Silence background network glitches to avoid popping React Error Overlay
+      activeProvider.on("error", (err) => {
+        console.warn("Background notification provider network error:", err);
+      });
+
+      activeContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, activeProvider);
+    } catch (e) {
+      console.error("Failed to initialize background notifications provider:", e);
+      return;
+    }
 
     const makeId = (event, ...args) => `${event}-${args.join('-')}`;
 
@@ -154,28 +174,34 @@ export function useNotifications(contract, account) {
     };
 
     try {
-      contract.on('TenderCreated', onTenderCreated);
-      contract.on('BidSubmitted', onBidSubmitted);
-      contract.on('VoteCasted', onVoteCasted);
-      contract.on('TenderCompleted', onTenderCompleted);
-      contract.on('VendorApplicationSubmitted', onAppSubmitted);
-      contract.on('VendorApplicationApproved', onAppApproved);
-      contract.on('VendorApplicationRejected', onAppRejected);
+      activeContract.on('TenderCreated', onTenderCreated);
+      activeContract.on('BidSubmitted', onBidSubmitted);
+      activeContract.on('VoteCasted', onVoteCasted);
+      activeContract.on('TenderCompleted', onTenderCompleted);
+      activeContract.on('VendorApplicationSubmitted', onAppSubmitted);
+      activeContract.on('VendorApplicationApproved', onAppApproved);
+      activeContract.on('VendorApplicationRejected', onAppRejected);
     } catch (_) { /* read-only provider may not support event subscriptions */ }
 
     return () => {
-      listenersAttached.current = false;
       try {
-        contract.removeAllListeners('TenderCreated');
-        contract.removeAllListeners('BidSubmitted');
-        contract.removeAllListeners('VoteCasted');
-        contract.removeAllListeners('TenderCompleted');
-        contract.removeAllListeners('VendorApplicationSubmitted');
-        contract.removeAllListeners('VendorApplicationApproved');
-        contract.removeAllListeners('VendorApplicationRejected');
+        if (activeContract) {
+          activeContract.removeAllListeners('TenderCreated');
+          activeContract.removeAllListeners('BidSubmitted');
+          activeContract.removeAllListeners('VoteCasted');
+          activeContract.removeAllListeners('TenderCompleted');
+          activeContract.removeAllListeners('VendorApplicationSubmitted');
+          activeContract.removeAllListeners('VendorApplicationApproved');
+          activeContract.removeAllListeners('VendorApplicationRejected');
+        }
+      } catch (_) {}
+      try {
+        if (activeProvider) {
+          activeProvider.removeAllListeners();
+        }
       } catch (_) {}
     };
-  }, [contract, addNotification]);
+  }, [addNotification]);
 
   return { notifications, unreadCount, markAsRead, markAllAsRead, clearAll };
 }

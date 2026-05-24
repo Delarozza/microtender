@@ -15,7 +15,7 @@ contract MicroTender {
     uint256 public constant MAX_VOTING_DAYS = 14;
     /// @notice Minimum bids required before the creator can call startVoting
     uint256 public constant MIN_BIDS_FOR_VOTING = 3;
-    uint256 public constant MAX_STRING_LENGTH = 200; // Максимальная длина строк
+    uint256 public constant MAX_STRING_LENGTH = 200; // Maximálna dĺžka reťazcov
     
     // ========== STRUCTS ==========
     
@@ -120,9 +120,9 @@ contract MicroTender {
     // ========== ROLE MANAGEMENT ==========
     
     /**
-     * @dev Выдать роль пользователю
-     * @param _user Адрес пользователя
-     * @param _role Роль (Member или Admin)
+     * @dev Udelenie roly používateľovi
+     * @param _user Adresa používateľa
+     * @param _role Rola (Member alebo Admin)
      */
     function grantRole(address _user, UserRole _role) external onlyOwner {
         require(_user != address(0), "Invalid address");
@@ -132,8 +132,8 @@ contract MicroTender {
     }
     
     /**
-     * @dev Отозвать роль у пользователя
-     * @param _user Адрес пользователя
+     * @dev Odobranie roly používateľovi
+     * @param _user Adresa používateľa
      */
     function revokeRole(address _user) external onlyOwner {
         require(_user != address(0), "Invalid address");
@@ -143,9 +143,9 @@ contract MicroTender {
     }
     
     /**
-     * @dev Получить роль пользователя
-     * @param _user Адрес пользователя
-     * @return Роль пользователя
+     * @dev Získanie roly používateľa
+     * @param _user Adresa používateľa
+     * @return Rola používateľa
      */
     function getUserRole(address _user) external view returns (UserRole) {
         return userRoles[_user];
@@ -154,13 +154,13 @@ contract MicroTender {
     // ========== TENDER FUNCTIONS ==========
     
     /**
-     * @dev Создать новый тендер
-     * @param _title Название тендера
-     * @param _description Описание тендера
-     * @param _maxBudget Максимальный бюджет в wei
-     * @param _category Категория
-     * @param _ipfsCID CID документа из IPFS (может быть пустым)
-     * @return ID созданного тендера
+     * @dev Vytvorenie nového tendra
+     * @param _title Názov tendra
+     * @param _description Popis tendra
+     * @param _maxBudget Maximálny rozpočet vo wei
+     * @param _category Kategória
+     * @param _ipfsCID CID dokumentu z IPFS (môže byť prázdny)
+     * @return ID vytvoreného tendra
      */
     function createTender(
         string memory _title,
@@ -179,7 +179,7 @@ contract MicroTender {
             "Invalid deadline"
         );
         
-        // Используем unchecked для безопасного инкремента
+        // Použitie unchecked pre bezpečnú inkrementáciu
         unchecked {
             tenderCounter++;
         }
@@ -206,8 +206,8 @@ contract MicroTender {
     }
     
     /**
-     * @dev Отменить тендер (только создатель, только в статусе Draft или Open)
-     * @param _tenderId ID тендера
+     * @dev Zrušenie tendra (iba tvorca, iba v stave Open)
+     * @param _tenderId ID tendra
      */
     function cancelTender(uint256 _tenderId) external validTender(_tenderId) {
         Tender storage tender = tenders[_tenderId];
@@ -240,9 +240,9 @@ contract MicroTender {
     }
     
     /**
-     * @dev Обновить IPFS CID для тендера (только создатель, в статусе Open до первых заявок)
-     * @param _tenderId ID тендера
-     * @param _ipfsCID Новый CID документа
+     * @dev Aktualizácia IPFS CID pre tender (iba tvorca, v stave Open pred prvými ponukami)
+     * @param _tenderId ID tendra
+     * @param _ipfsCID Nový CID dokumentu
      */
     function updateTenderIPFSCID(uint256 _tenderId, string memory _ipfsCID) 
         external 
@@ -259,9 +259,9 @@ contract MicroTender {
     }
     
     /**
-     * @dev Получить детали тендера
-     * @param _tenderId ID тендера
-     * @return Структура тендера
+     * @dev Získanie detailov tendra
+     * @param _tenderId ID tendra
+     * @return Štruktúra tendra
      */
     function getTender(uint256 _tenderId) external view validTender(_tenderId) returns (Tender memory) {
         return tenders[_tenderId];
@@ -270,10 +270,10 @@ contract MicroTender {
     // ========== VENDOR REGISTRATION ==========
     
     /**
-     * @dev Подать заявку на регистрацию как поставщик
-     * @param _companyName Название компании
-     * @param _contactInfo Контактная информация
-     * @param _description Описание компании
+     * @dev Odoslanie žiadosti o registráciu dodávateľa
+     * @param _companyName Názov spoločnosti
+     * @param _contactInfo Kontaktné informácie
+     * @param _description Popis spoločnosti
      */
     function submitVendorApplication(
         string memory _companyName,
@@ -305,8 +305,8 @@ contract MicroTender {
     }
     
     /**
-     * @dev Одобрить заявку вендора
-     * @param _applicationId ID заявки
+     * @dev Schválenie žiadosti dodávateľa
+     * @param _applicationId ID žiadosti
      */
     function approveVendorApplication(uint256 _applicationId) 
         external 
@@ -324,8 +324,8 @@ contract MicroTender {
     }
     
     /**
-     * @dev Отклонить заявку вендора
-     * @param _applicationId ID заявки
+     * @dev Zamietnutie žiadosti dodávateľa
+     * @param _applicationId ID žiadosti
      */
     function rejectVendorApplication(uint256 _applicationId) 
         external 
@@ -336,15 +336,15 @@ contract MicroTender {
         require(application.status == ApplicationStatus.Pending, "Application already processed");
         
         application.status = ApplicationStatus.Rejected;
-        vendorApplicationByAddress[application.applicant] = 0; // Разрешить повторную подачу
+        vendorApplicationByAddress[application.applicant] = 0; // Povolenie opätovného podania
         
         emit VendorApplicationRejected(_applicationId, application.applicant);
     }
     
     /**
-     * @dev Получить заявку вендора
-     * @param _applicationId ID заявки
-     * @return Структура заявки
+     * @dev Získanie žiadosti dodávateľa
+     * @param _applicationId ID žiadosti
+     * @return Štruktúra žiadosti
      */
     function getVendorApplication(uint256 _applicationId) 
         external 
@@ -356,9 +356,9 @@ contract MicroTender {
     }
     
     /**
-     * @dev Получить заявку по адресу вендора
-     * @param _vendor Адрес вендора
-     * @return Структура заявки
+     * @dev Získanie žiadosti podľa adresy dodávateľa
+     * @param _vendor Adresa dodávateľa
+     * @return Štruktúra žiadosti
      */
     function getVendorApplicationByAddress(address _vendor) 
         external 
@@ -374,9 +374,9 @@ contract MicroTender {
     }
     
     /**
-     * @dev Получить статус заявки вендора
-     * @param _vendor Адрес вендора
-     * @return Статус заявки
+     * @dev Získanie stavu žiadosti dodávateľa
+     * @param _vendor Adresa dodávateľa
+     * @return Stav žiadosti
      */
     function getVendorApplicationStatus(address _vendor) 
         external 
@@ -390,17 +390,17 @@ contract MicroTender {
     }
     
     /**
-     * @dev Проверить, является ли адрес зарегистрированным вендором
-     * @param _vendor Адрес вендора
-     * @return true если зарегистрирован
+     * @dev Overenie, či je adresa registrovaným dodávateľom
+     * @param _vendor Adresa dodávateľa
+     * @return true ak je registrovaný
      */
     function isRegisteredVendor(address _vendor) external view returns (bool) {
         return registeredVendors[_vendor];
     }
     
     /**
-     * @dev Отозвать статус вендора (может вызвать owner или сам вендор)
-     * @param _vendor Адрес вендора
+     * @dev Odobranie statusu dodávateľa (môže volať owner alebo samotný dodávateľ)
+     * @param _vendor Adresa dodávateľa
      */
     function revokeVendorStatus(address _vendor) external {
         require(_vendor != address(0), "Invalid address");
@@ -408,18 +408,18 @@ contract MicroTender {
         require(registeredVendors[_vendor], "Not a vendor");
         
         registeredVendors[_vendor] = false;
-        vendorApplicationByAddress[_vendor] = 0; // Разрешить повторную подачу
+        vendorApplicationByAddress[_vendor] = 0; // Povolenie opätovného podania
     }
     
     // ========== BID FUNCTIONS ==========
     
     /**
-     * @dev Подать предложение на тендер
-     * @param _tenderId ID тендера
-     * @param _price Цена в wei
-     * @param _deliveryTime Срок доставки в днях
-     * @param _description Описание предложения
-     * @return ID созданного предложения
+     * @dev Odoslanie ponuky na tender
+     * @param _tenderId ID tendra
+     * @param _price Cena vo wei
+     * @param _deliveryTime Doba dodania v dňoch
+     * @param _description Popis ponuky
+     * @return ID vytvorenej ponuky
      */
     function submitBid(
         uint256 _tenderId,
@@ -455,9 +455,9 @@ contract MicroTender {
     }
     
     /**
-     * @dev Получить все предложения для тендера
-     * @param _tenderId ID тендера
-     * @return Массив предложений
+     * @dev Získanie všetkých ponúk pre tender
+     * @param _tenderId ID tendra
+     * @return Pole ponúk
      */
     function getTenderBids(uint256 _tenderId) 
         external 
@@ -469,9 +469,9 @@ contract MicroTender {
     }
     
     /**
-     * @dev Получить количество предложений для тендера
-     * @param _tenderId ID тендера
-     * @return Количество предложений
+     * @dev Získanie počtu ponúk pre tender
+     * @param _tenderId ID tendra
+     * @return Počet ponúk
      */
     function getBidCount(uint256 _tenderId) 
         external 
@@ -485,9 +485,9 @@ contract MicroTender {
     // ========== VOTING FUNCTIONS ==========
     
     /**
-     * @dev Начать голосование (минимум MIN_BIDS_FOR_VOTING предложений)
-     * @param _tenderId ID тендера
-     * @param _votingDays Количество дней для голосования
+     * @dev Začatie hlasovania (minimálne MIN_BIDS_FOR_VOTING ponúk)
+     * @param _tenderId ID tendra
+     * @param _votingDays Počet dní na hlasovanie
      */
     function startVoting(uint256 _tenderId, uint256 _votingDays) 
         external 
@@ -510,9 +510,9 @@ contract MicroTender {
     }
     
     /**
-     * @dev Проголосовать за предложение
-     * @param _tenderId ID тендера
-     * @param _bidId ID предложения
+     * @dev Hlasovanie za ponuku
+     * @param _tenderId ID tendra
+     * @param _bidId ID ponuky
      */
     function castVote(uint256 _tenderId, uint256 _bidId) 
         external 
@@ -524,7 +524,7 @@ contract MicroTender {
         require(block.timestamp < tender.votingDeadline, "Voting deadline passed");
         require(!hasVoted[_tenderId][msg.sender], "Already voted");
         
-        // Оптимизированная проверка существования предложения
+        // Optimalizované overenie existencie ponuky
         Bid[] storage bids = tenderBids[_tenderId];
         bool found = false;
         uint256 bidsLength = bids.length;
@@ -551,10 +551,10 @@ contract MicroTender {
     }
     
     /**
-     * @dev Получить количество голосов за предложение
-     * @param _tenderId ID тендера
-     * @param _bidId ID предложения
-     * @return Количество голосов
+     * @dev Získanie počtu hlasov pre ponuku
+     * @param _tenderId ID tendra
+     * @param _bidId ID ponuky
+     * @return Počet hlasov
      */
     function getVoteCount(uint256 _tenderId, uint256 _bidId) 
         external 
@@ -566,10 +566,10 @@ contract MicroTender {
     }
     
     /**
-     * @dev Проверить, голосовал ли пользователь
-     * @param _tenderId ID тендера
-     * @param _user Адрес пользователя
-     * @return true если голосовал
+     * @dev Overenie, či používateľ hlasoval
+     * @param _tenderId ID tendra
+     * @param _user Adresa používateľa
+     * @return true ak hlasoval
      */
     function hasUserVoted(uint256 _tenderId, address _user) 
         external 
@@ -581,8 +581,8 @@ contract MicroTender {
     }
     
     /**
-     * @dev Завершить тендер и определить победителя
-     * @param _tenderId ID тендера
+     * @dev Ukončenie tendra a určenie víťaza
+     * @param _tenderId ID tendra
      */
     function finalizeTender(uint256 _tenderId) external validTender(_tenderId) {
         Tender storage tender = tenders[_tenderId];
@@ -596,7 +596,7 @@ contract MicroTender {
         Bid[] storage bids = tenderBids[_tenderId];
         require(bids.length > 0, "No bids");
         
-        // Найти победителя (оптимизированный цикл)
+        // Nájdenie víťaza (optimalizovaný cyklus)
         uint256 winningBidId = 0;
         uint256 maxVotes = 0;
         uint256 bidsLength = bids.length;
@@ -620,12 +620,12 @@ contract MicroTender {
     }
     
     /**
-     * @dev Получить информацию о победителе
-     * @param _tenderId ID тендера
-     * @return bidId ID победившего предложения
-     * @return vendor Адрес вендора-победителя
-     * @return price Цена предложения
-     * @return votes Количество голосов
+     * @dev Získanie informácií o víťazovi
+     * @param _tenderId ID tendra
+     * @return bidId ID víťaznej ponuky
+     * @return vendor Adresa víťazného dodávateľa
+     * @return price Cena ponuky
+     * @return votes Počet hlasov
      */
     function getWinningBid(uint256 _tenderId) 
         external 
@@ -664,8 +664,8 @@ contract MicroTender {
     }
     
     /**
-     * @dev Отметить тендер как выполненный
-     * @param _tenderId ID тендера
+     * @dev Označenie tendra ako splneného
+     * @param _tenderId ID tendra
      */
     function fulfillTender(uint256 _tenderId) external validTender(_tenderId) {
         Tender storage tender = tenders[_tenderId];
@@ -678,17 +678,17 @@ contract MicroTender {
     // ========== HELPER FUNCTIONS ==========
     
     /**
-     * @dev Конвертация wei в ether (для отладки)
-     * @param _wei Количество wei
-     * @return Количество ether
+     * @dev Konvertovanie wei na ether (pre účely ladenia)
+     * @param _wei Množstvo wei
+     * @return Množstvo ether
      */
     function weiToEther(uint256 _wei) external pure returns (uint256) {
         return _wei / 1 ether;
     }
     
     /**
-     * @dev Получить текущий timestamp (для тестирования дедлайнов)
-     * @return Текущий timestamp
+     * @dev Získanie aktuálneho timestampu (pre účely testovania)
+     * @return Aktuálny timestamp
      */
     function getCurrentTime() external view returns (uint256) {
         return block.timestamp;

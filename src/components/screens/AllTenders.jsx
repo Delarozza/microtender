@@ -3,7 +3,6 @@ import { getCategoryIcon, getCategoryLabel } from '../../utils/category';
 import { Calendar, Users } from 'lucide-react';
 
 const statusColors = {
-  Koncept: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
   Aktívny: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400',
   Hlasovanie: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400',
   Ukončený: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',

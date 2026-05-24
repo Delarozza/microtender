@@ -1,8 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { WalletProvider, WalletContext } from './context/WalletContext';
 import { useTenderContract } from './hooks/useTenderContract';
 import { useNotifications } from './hooks/useNotifications';
+import { FileText, ShoppingBag, Vote, CheckCircle, UserPlus, XCircle, X } from 'lucide-react';
 
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -17,10 +18,30 @@ import { VendorApproval } from './components/screens/VendorApproval';
 import { Settings } from './components/screens/Settings';
 import { Reports } from './components/screens/Reports';
 
+const NOTIF_ICONS = {
+  tender_created:       { icon: FileText,     color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/10' },
+  bid_submitted:        { icon: ShoppingBag,  color: 'text-green-500 bg-green-50 dark:bg-green-900/10' },
+  vote_casted:          { icon: Vote,         color: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/10' },
+  tender_completed:     { icon: CheckCircle,  color: 'text-purple-500 bg-purple-50 dark:bg-purple-900/10' },
+  vendor_app_submitted: { icon: UserPlus,     color: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-900/10' },
+  vendor_app_approved:  { icon: CheckCircle,  color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/10' },
+  vendor_app_rejected:  { icon: XCircle,      color: 'text-red-500 bg-red-50 dark:bg-red-900/10' },
+};
+
 function MainAppContent() {
   const { account, contract, isMember, isRegisteredVendor, userRole, myApplicationStatus, connectWallet, disconnectWallet } = useContext(WalletContext);
   const tenderMethods = useTenderContract(contract, account, isMember);
-  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications(contract, account);
+  const [activeToasts, setActiveToasts] = useState([]);
+
+  const handleNewNotification = useCallback((notif) => {
+    const id = notif.id + '-' + Math.random();
+    setActiveToasts((prev) => [...prev, { ...notif, toastId: id }]);
+    setTimeout(() => {
+      setActiveToasts((prev) => prev.filter((t) => t.toastId !== id));
+    }, 4500);
+  }, []);
+
+  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications(contract, account, handleNewNotification);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -126,6 +147,39 @@ function MainAppContent() {
           </div>
         </div>
       )}
+
+      {/* Floating Active Toasts Container */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+        {activeToasts.map((toast) => {
+          const meta = NOTIF_ICONS[toast.type] || NOTIF_ICONS.tender_created;
+          const Icon = meta.icon;
+          return (
+            <div
+              key={toast.toastId}
+              className="pointer-events-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 shadow-2xl flex items-start gap-3 animate-slide-in transform hover:-translate-y-0.5 transition-all duration-300 border-l-4 border-l-purple-500"
+            >
+              <div className={`mt-0.5 p-2 rounded-lg ${meta.color}`}>
+                <Icon size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {toast.title}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                  {toast.message}
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveToasts((prev) => prev.filter((t) => t.toastId !== toast.toastId))}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors self-start p-1"
+                aria-label="Zatvoriť"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

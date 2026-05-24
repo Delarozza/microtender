@@ -4,12 +4,11 @@ import { getCategoryIcon, getCategoryLabel } from '../../utils/category';
 
 
 const STATUS_META = [
-  { key: 'Koncept',    idx: 0, color: 'bg-gray-400',    darkColor: 'dark:bg-gray-500',    text: 'text-gray-700 dark:text-gray-300' },
-  { key: 'Aktívny',    idx: 1, color: 'bg-green-500',   darkColor: 'dark:bg-green-500',   text: 'text-green-700 dark:text-green-400' },
-  { key: 'Hlasovanie', idx: 2, color: 'bg-yellow-500',  darkColor: 'dark:bg-yellow-400',  text: 'text-yellow-700 dark:text-yellow-400' },
-  { key: 'Ukončený',   idx: 3, color: 'bg-blue-500',    darkColor: 'dark:bg-blue-500',    text: 'text-blue-700 dark:text-blue-400' },
-  { key: 'Splnený',    idx: 4, color: 'bg-emerald-500', darkColor: 'dark:bg-emerald-400', text: 'text-emerald-700 dark:text-emerald-400' },
-  { key: 'Zrušený',    idx: 5, color: 'bg-red-500',     darkColor: 'dark:bg-red-400',     text: 'text-red-700 dark:text-red-400' },
+  { key: 'Aktívny',    idx: 0, color: 'bg-green-500',   darkColor: 'dark:bg-green-500',   text: 'text-green-700 dark:text-green-400' },
+  { key: 'Hlasovanie', idx: 1, color: 'bg-yellow-500',  darkColor: 'dark:bg-yellow-400',  text: 'text-yellow-700 dark:text-yellow-400' },
+  { key: 'Ukončený',   idx: 2, color: 'bg-blue-500',    darkColor: 'dark:bg-blue-500',    text: 'text-blue-700 dark:text-blue-400' },
+  { key: 'Splnený',    idx: 3, color: 'bg-emerald-500', darkColor: 'dark:bg-emerald-400', text: 'text-emerald-700 dark:text-emerald-400' },
+  { key: 'Zrušený',    idx: 4, color: 'bg-red-500',     darkColor: 'dark:bg-red-400',     text: 'text-red-700 dark:text-red-400' },
 ];
 
 function Card({ title, icon: Icon, children }) {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ThumbsUp, ExternalLink } from 'lucide-react';
 import { getCategoryIcon } from '../../utils/category';
 import { explorerUrl, shortAddress } from '../../utils/explorer';
+import { ethers } from 'ethers';
 
 
 export function Voting({ tenders, contract, account, onVote, loading }) {
@@ -25,7 +26,7 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
           const bidList = bids.map((b) => ({
             id: b.id.toString(),
             vendor: b.vendor,
-            price: parseFloat((b.price && b.price.toString) ? window.ethers.utils.formatEther(b.price) : 0),
+            price: parseFloat((b.price && b.price.toString) ? ethers.formatEther(b.price) : 0),
             deliveryTime: b.deliveryTime?.toString?.() ?? b.deliveryTime,
             description: b.description || '',
           }));

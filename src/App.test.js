@@ -51,7 +51,7 @@ describe('MicroTender App', () => {
 
 describe('Status Names', () => {
   test('all status names are defined in Slovak', () => {
-    const statusNames = ['Koncept', 'Aktívny', 'Hlasovanie', 'Ukončený', 'Splnený', 'Zrušený'];
+    const statusNames = ['Aktívny', 'Hlasovanie', 'Ukončený', 'Splnený', 'Zrušený'];
     statusNames.forEach(status => {
       expect(status).toBeTruthy();
     });

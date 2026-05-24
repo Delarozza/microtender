@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Copy, Check, ExternalLink, Shield, User, Globe, Moon, Sun, UserPlus, UserMinus } from 'lucide-react';
 
-const CONTRACT_ADDRESS = '0x1F8CCE975c9cB052Bf8c6ED04B2a9c614436C5D0';
+import { CONTRACT_ADDRESS } from '../../constants/contracts';
+import { getGasOverrides } from '../../utils/gas';
 const CHAIN_ID_AMOY = 80002;
 const POLYGONSCAN_URL = `https://amoy.polygonscan.com/address/${CONTRACT_ADDRESS}`;
 
@@ -106,7 +107,8 @@ export function Settings({ account, isMember, userRole, isRegisteredVendor, myAp
     if (!contract || !roleAddress) return;
     try {
       setLoading(true);
-      const tx = await contract.grantRole(roleAddress, parseInt(roleToGrant, 10));
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.grantRole(roleAddress, parseInt(roleToGrant, 10), overrides);
       await tx.wait();
       alert('Rola bola úspešne udelená!');
       setRoleAddress('');
@@ -122,7 +124,8 @@ export function Settings({ account, isMember, userRole, isRegisteredVendor, myAp
     if (!window.confirm('Naozaj chcete odobrať rolu tejto adrese?')) return;
     try {
       setLoading(true);
-      const tx = await contract.revokeRole(revokeAddress);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.revokeRole(revokeAddress, overrides);
       await tx.wait();
       alert('Rola bola úspešne odobratá!');
       setRevokeAddress('');

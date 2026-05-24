@@ -29,10 +29,12 @@ export function Sidebar({ activeItem, onNavigate, account, isMember, isRegistere
     <div className="w-64 h-full bg-[#2c3e50] dark:bg-gray-800 flex flex-col">
       <div className="h-16 px-6 flex items-center border-b border-[#34495e] dark:border-gray-700">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-            <BarChart3 size={20} className="text-white" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden transform hover:scale-105 transition-transform duration-200">
+            <img src="/logo.png" alt="TUKE Logo" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-xl font-bold text-white">MicroTender</h1>
+          <h1 className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-gray-100 to-purple-200 bg-clip-text text-transparent">
+            MicroTender
+          </h1>
         </div>
       </div>
 

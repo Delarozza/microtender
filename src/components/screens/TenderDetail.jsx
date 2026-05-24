@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, ThumbsUp, ExternalLink, Shield, XCircle, CheckCircle, Award, Trophy, Upload } from 'lucide-react';
 import { explorerUrl, shortAddress } from '../../utils/explorer';
+import { ethers } from 'ethers';
 
 
 export function TenderDetail({
@@ -59,7 +60,7 @@ export function TenderDetail({
             setWinningBid({
               bidId: Number(w.bidId),
               vendor: w.vendor,
-              price: parseFloat(window.ethers.utils.formatEther(w.price)),
+              price: parseFloat(ethers.formatEther(w.price)),
               votes: Number(w.votes),
             });
           }

@@ -1,23 +1,23 @@
 /**
- * Утилита для загрузки файлов в IPFS через Pinata
+ * Pomocný modul na nahrávanie súborov do IPFS cez Pinata API
  * 
- * Требования:
- * 1. Создайте аккаунт на https://pinata.cloud
- * 2. Получите JWT токен в разделе API Keys
- *    - Права: только `pinFileToIPFS` (администраторские права НЕ нужны)
- * 3. Создайте файл .env.local с переменной REACT_APP_PINATA_JWT
+ * Požiadavky:
+ * 1. Vytvoriť účet na https://pinata.cloud
+ * 2. Získať JWT token v sekcii API Keys
+ *    - Oprávnenia: iba `pinFileToIPFS` (administrátorské práva nie sú potrebné)
+ * 3. Vytvoriť súbor .env.local s premennou REACT_APP_PINATA_JWT
  */
 
 /**
- * Загружает файл в IPFS через Pinata
- * @param {File} file - Файл для загрузки (PDF, DOC, DOCX)
- * @returns {Promise<string>} CID (Content Identifier) файла
+ * Nahrá súbor do IPFS cez službu Pinata
+ * @param {File} file - Súbor na nahranie (PDF, DOC, DOCX)
+ * @returns {Promise<string>} CID (Content Identifier) súboru
  */
 export const uploadToIPFS = async (file) => {
   // PRODUCTION FIX: Route through a backend proxy
   // const response = await fetch('/api/ipfs/upload', { method: 'POST', body: formData });
   
-  // PoC FALLBACK (Only if strictly a student demo with no backend):
+  // PoC FALLBACK (Iba ak ide o študentské demo bez backendu):
   const PINATA_JWT = process.env.REACT_APP_PINATA_JWT;
   
   if (!PINATA_JWT) {
@@ -25,7 +25,7 @@ export const uploadToIPFS = async (file) => {
   }
   console.warn("SECURITY WARNING: Pinata JWT is exposed on the client. In production, move this to a Node.js backend.");
 
-  // Валидация файла
+  // Validácia súboru
   const maxSize = 10 * 1024 * 1024; // 10MB
   if (file.size > maxSize) {
     throw new Error(`Súbor je príliš veľký. Maximálna veľkosť: 10MB`);
@@ -38,11 +38,11 @@ export const uploadToIPFS = async (file) => {
   }
 
   try {
-    // Создаем FormData
+    // Vytvorenie FormData
     const formData = new FormData();
     formData.append('file', file);
 
-    // Метаданные файла
+    // Metadáta súboru
     const metadata = JSON.stringify({
       name: file.name,
       keyvalues: {
@@ -52,13 +52,13 @@ export const uploadToIPFS = async (file) => {
     });
     formData.append('pinataMetadata', metadata);
 
-    // Опции pinning
+    // Možnosti pinningu
     const options = JSON.stringify({
       cidVersion: 0,
     });
     formData.append('pinataOptions', options);
 
-    // Загружаем в Pinata
+    // Nahranie do služby Pinata
     const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
       method: 'POST',
       headers: {
@@ -81,9 +81,9 @@ export const uploadToIPFS = async (file) => {
 };
 
 /**
- * Проверяет доступность файла по CID
+ * Overí dostupnosť súboru na IPFS podľa CID
  * @param {string} cid - Content Identifier
- * @returns {Promise<boolean>} true если файл доступен
+ * @returns {Promise<boolean>} true ak je súbor dostupný
  */
 export const checkIPFSFile = async (cid) => {
   try {
@@ -99,15 +99,15 @@ export const checkIPFSFile = async (cid) => {
 };
 
 /**
- * Получает URL для доступа к файлу в IPFS
+ * Vráti URL adresu pre prístup k súboru na IPFS
  * @param {string} cid - Content Identifier
- * @returns {string} URL файла
+ * @returns {string} URL adresa súboru
  */
 export const getIPFSUrl = (cid) => {
   if (!cid) return null;
-  // Можно использовать разные gateways
+  // Je možné použiť rôzne IPFS brány (gateways)
   return `https://ipfs.io/ipfs/${cid}`;
-  // Альтернативы:
+  // Alternatívy:
   // return `https://gateway.pinata.cloud/ipfs/${cid}`;
   // return `https://cloudflare-ipfs.com/ipfs/${cid}`;
 };

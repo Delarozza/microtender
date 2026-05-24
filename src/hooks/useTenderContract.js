@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { uploadToIPFS } from '../utils/pinata';
+import { getGasOverrides } from '../utils/gas';
 
 const STATUS_NAMES = ['Aktívny', 'Hlasovanie', 'Ukončený', 'Splnený', 'Zrušený'];
 
@@ -128,7 +129,8 @@ export function useTenderContract(contract, account, isMember) {
     try {
       setLoading(true);
       const budgetInWei = ethers.parseEther(createForm.budget);
-      const txCreate = await contract.createTender(createForm.title, createForm.description || '', budgetInWei, createForm.category, ipfsCID || '', days);
+      const overrides = await getGasOverrides(contract);
+      const txCreate = await contract.createTender(createForm.title, createForm.description || '', budgetInWei, createForm.category, ipfsCID || '', days, overrides);
       await txCreate.wait();
       
       alert(`✅ Tender bol vytvorený.`);
@@ -184,7 +186,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!vendorApplicationForm.companyName.trim()) { alert('❌ Názov spoločnosti je povinný!'); return; }
     try {
       setLoading(true);
-      const tx = await contract.submitVendorApplication(vendorApplicationForm.companyName, vendorApplicationForm.contactInfo, vendorApplicationForm.description);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.submitVendorApplication(vendorApplicationForm.companyName, vendorApplicationForm.contactInfo, vendorApplicationForm.description, overrides);
       await tx.wait();
       alert(`✅ Žiadosť bola odoslaná!`);
       setVendorApplicationForm({ companyName: '', contactInfo: '', description: '' });
@@ -201,7 +204,8 @@ export function useTenderContract(contract, account, isMember) {
     try {
       setLoading(true);
       const priceInWei = ethers.parseEther(bidForm.priceEUR);
-      const tx = await contract.submitBid(bidForm.tenderId, priceInWei, bidForm.deliveryTime, bidForm.description);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.submitBid(bidForm.tenderId, priceInWei, bidForm.deliveryTime, bidForm.description, overrides);
       await tx.wait();
       alert(`✅ Ponuka bola úspešne podaná!`);
       setBidForm({ tenderId: '', priceEUR: '', deliveryTime: '', description: '' });
@@ -216,7 +220,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!contract || !isMember) { alert('❌ Iba členovia rady môžu hlasovať!'); return; }
     try {
       setLoading(true);
-      const tx = await contract.castVote(tenderId, bidId);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.castVote(tenderId, bidId, overrides);
       await tx.wait();
       alert(`✅ Hlas bol prijatý!`);
       getTenderDetails(tenderId);
@@ -231,7 +236,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!contract) return;
     try {
       setLoading(true);
-      const tx = await contract.startVoting(tenderId, votingDays);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.startVoting(tenderId, votingDays, overrides);
       await tx.wait();
       alert(`✅ Hlasovanie bolo spustené!`);
       getTenderDetails(tenderId);
@@ -247,7 +253,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!window.confirm('Naozaj chcete zrušiť tento tender? Táto akcia je nezvratná.')) return;
     try {
       setLoading(true);
-      const tx = await contract.cancelTender(tenderId);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.cancelTender(tenderId, overrides);
       await tx.wait();
       alert(`✅ Tender bol zrušený.`);
       getTenderDetails(tenderId);
@@ -263,7 +270,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!contract) return;
     try {
       setLoading(true);
-      const tx = await contract.finalizeTender(tenderId);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.finalizeTender(tenderId, overrides);
       await tx.wait();
       alert(`✅ Tender bol finalizovaný!`);
       getTenderDetails(tenderId);
@@ -279,7 +287,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!contract) return;
     try {
       setLoading(true);
-      const tx = await contract.fulfillTender(tenderId);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.fulfillTender(tenderId, overrides);
       await tx.wait();
       alert(`✅ Tender bol označený ako splnený.`);
       getTenderDetails(tenderId);
@@ -320,7 +329,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!contract) return;
     try {
       setLoading(true);
-      const tx = await contract.approveVendorApplication(appId);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.approveVendorApplication(appId, overrides);
       await tx.wait();
       alert(`✅ Žiadosť bola schválená!`);
       await loadVendorApplications();
@@ -331,7 +341,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!contract) return;
     try {
       setLoading(true);
-      const tx = await contract.rejectVendorApplication(appId);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.rejectVendorApplication(appId, overrides);
       await tx.wait();
       alert(`❌ Žiadosť bola zamietnutá.`);
       await loadVendorApplications();
@@ -342,7 +353,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!contract) return;
     try {
       setLoading(true);
-      const tx = await contract.revokeVendorStatus(vendorAddress);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.revokeVendorStatus(vendorAddress, overrides);
       await tx.wait();
       alert(`✅ Status dodávateľa bol odvolaný.`);
       await loadVendorApplications();
@@ -353,7 +365,8 @@ export function useTenderContract(contract, account, isMember) {
     if (!contract) return;
     try {
       setLoading(true);
-      const tx = await contract.updateTenderIPFSCID(tenderId, newCID);
+      const overrides = await getGasOverrides(contract);
+      const tx = await contract.updateTenderIPFSCID(tenderId, newCID, overrides);
       await tx.wait();
       alert(`✅ Dokument bol aktualizovaný.`);
       getTenderDetails(tenderId);
