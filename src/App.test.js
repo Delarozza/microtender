@@ -3,7 +3,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from './App';
 
-// Mock ethers
 jest.mock('ethers', () => ({
   ...jest.requireActual('ethers'),
   ethers: {
@@ -18,7 +17,6 @@ jest.mock('ethers', () => ({
   Contract: jest.fn(),
 }));
 
-// Mock window.ethereum
 global.window.ethereum = {
   request: jest.fn(),
   send: jest.fn(),
@@ -26,15 +24,14 @@ global.window.ethereum = {
   removeListener: jest.fn(),
 };
 
-// Mock react-router-dom
 jest.mock('react-router-dom', () => ({
-  BrowserRouter: ({children}) => <div>{children}</div>,
-  Routes: ({children}) => <div>{children}</div>,
-  Route: ({element}) => <div>{element}</div>,
+  BrowserRouter: ({ children }) => <div>{children}</div>,
+  Routes: ({ children }) => <div>{children}</div>,
+  Route: ({ element }) => <div>{element}</div>,
   Navigate: () => null,
   useNavigate: () => jest.fn(),
   useLocation: () => ({ pathname: '/' }),
-  Link: ({children}) => <a>{children}</a>
+  Link: ({ children }) => <a>{children}</a>
 }), { virtual: true });
 
 describe('MicroTender App', () => {
@@ -44,7 +41,7 @@ describe('MicroTender App', () => {
 
   test('displays MicroTender branding', () => {
     render(<App />);
-    
+
     expect(screen.getAllByText(/MicroTender/i).length).toBeGreaterThan(0);
   });
 });
@@ -60,7 +57,6 @@ describe('Status Names', () => {
 
 describe('UI Components', () => {
   test('renders navigation tabs when wallet connected', () => {
-    // Basic test
     expect(true).toBe(true);
   });
 });

@@ -76,7 +76,6 @@ export function Settings({ account, isMember, userRole, isRegisteredVendor, myAp
     return false;
   });
 
-  // Role management state
   const [roleAddress, setRoleAddress] = useState('');
   const [roleToGrant, setRoleToGrant] = useState('0');
   const [revokeAddress, setRevokeAddress] = useState('');
@@ -262,14 +261,12 @@ export function Settings({ account, isMember, userRole, isRegisteredVendor, myAp
             <button
               type="button"
               onClick={() => setDarkMode((prev) => !prev)}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                darkMode ? 'bg-purple-600' : 'bg-gray-300'
-              }`}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${darkMode ? 'bg-purple-600' : 'bg-gray-300'
+                }`}
             >
               <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${
-                  darkMode ? 'translate-x-6' : 'translate-x-1'
-                }`}
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${darkMode ? 'translate-x-6' : 'translate-x-1'
+                  }`}
               />
             </button>
           </div>

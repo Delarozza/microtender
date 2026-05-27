@@ -13,9 +13,8 @@ contract MicroTender {
     uint256 public constant MAX_DEADLINE_DAYS = 14;
     uint256 public constant MIN_VOTING_DAYS = 3;
     uint256 public constant MAX_VOTING_DAYS = 14;
-    /// @notice Minimum bids required before the creator can call startVoting
     uint256 public constant MIN_BIDS_FOR_VOTING = 3;
-    uint256 public constant MAX_STRING_LENGTH = 200; // Maximálna dĺžka reťazcov
+    uint256 public constant MAX_STRING_LENGTH = 200; 
     
     // ========== STRUCTS ==========
     
@@ -179,7 +178,6 @@ contract MicroTender {
             "Invalid deadline"
         );
         
-        // Použitie unchecked pre bezpečnú inkrementáciu
         unchecked {
             tenderCounter++;
         }
@@ -218,7 +216,6 @@ contract MicroTender {
         if (tender.status == TenderStatus.Voting) {
             require(block.timestamp >= tender.votingDeadline, "Voting not finished");
             
-            // Verify absolutely no votes were cast
             uint256 maxVotes = 0;
             Bid[] storage bids = tenderBids[_tenderId];
             uint256 bidsLength = bids.length;
@@ -336,7 +333,7 @@ contract MicroTender {
         require(application.status == ApplicationStatus.Pending, "Application already processed");
         
         application.status = ApplicationStatus.Rejected;
-        vendorApplicationByAddress[application.applicant] = 0; // Povolenie opätovného podania
+        vendorApplicationByAddress[application.applicant] = 0;
         
         emit VendorApplicationRejected(_applicationId, application.applicant);
     }
@@ -408,7 +405,7 @@ contract MicroTender {
         require(registeredVendors[_vendor], "Not a vendor");
         
         registeredVendors[_vendor] = false;
-        vendorApplicationByAddress[_vendor] = 0; // Povolenie opätovného podania
+        vendorApplicationByAddress[_vendor] = 0; 
     }
     
     // ========== BID FUNCTIONS ==========
@@ -524,7 +521,6 @@ contract MicroTender {
         require(block.timestamp < tender.votingDeadline, "Voting deadline passed");
         require(!hasVoted[_tenderId][msg.sender], "Already voted");
         
-        // Optimalizované overenie existencie ponuky
         Bid[] storage bids = tenderBids[_tenderId];
         bool found = false;
         uint256 bidsLength = bids.length;
@@ -596,7 +592,6 @@ contract MicroTender {
         Bid[] storage bids = tenderBids[_tenderId];
         require(bids.length > 0, "No bids");
         
-        // Nájdenie víťaza (optimalizovaný cyklus)
         uint256 winningBidId = 0;
         uint256 maxVotes = 0;
         uint256 bidsLength = bids.length;

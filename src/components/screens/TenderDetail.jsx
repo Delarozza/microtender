@@ -38,7 +38,7 @@ export function TenderDetail({
       try {
         const voted = await contract.hasUserVoted(selectedTender.id, account);
         if (!cancelled) setHasVoted(voted);
-      } catch (_) {} // eslint-disable-line no-unused-vars
+      } catch (_) { }
 
       if (selectedTender.statusIndex === 1 && bids.length > 0) {
         const counts = {};
@@ -46,7 +46,7 @@ export function TenderDetail({
           try {
             const c = await contract.getVoteCount(selectedTender.id, bid.id);
             counts[bid.id] = c.toNumber ? c.toNumber() : Number(c);
-          } catch (_) { // eslint-disable-line no-unused-vars
+          } catch (_) {
             counts[bid.id] = 0;
           }
         }
@@ -64,7 +64,7 @@ export function TenderDetail({
               votes: Number(w.votes),
             });
           }
-        } catch (_) {} // eslint-disable-line no-unused-vars
+        } catch (_) { }
       }
     })();
 
@@ -80,7 +80,6 @@ export function TenderDetail({
   const canVote = selectedTender.statusIndex === 1 && isMember;
   const canSubmitBid = selectedTender.statusIndex === 0 && isRegisteredVendor && !isMember;
 
-  // Lifecycle actions — only for the tender creator
   const canCancel = isCreator && selectedTender.statusIndex === 0;
   const canFinalize = isCreator && selectedTender.statusIndex === 1
     && selectedTender.votingDeadline && Number(selectedTender.votingDeadline) > 0
@@ -136,19 +135,18 @@ export function TenderDetail({
             )}
           </div>
           <span
-            className={`px-4 py-2 rounded-full text-sm font-medium ${
-              selectedTender.status === 'Aktívny'
+            className={`px-4 py-2 rounded-full text-sm font-medium ${selectedTender.status === 'Aktívny'
                 ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
                 : selectedTender.status === 'Hlasovanie'
-                ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400'
-                : selectedTender.status === 'Ukončený'
-                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
-                : isFulfilled
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
-                : isCancelled
-                ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
-                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-            }`}
+                  ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400'
+                  : selectedTender.status === 'Ukončený'
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
+                    : isFulfilled
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+                      : isCancelled
+                        ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+              }`}
           >
             {isCancelled ? 'Zrušený' : isFulfilled ? 'Splnený' : selectedTender.status}
           </span>
@@ -244,11 +242,10 @@ export function TenderDetail({
               return (
                 <div
                   key={bid.id}
-                  className={`border rounded-lg p-4 flex flex-wrap items-center justify-between gap-4 ${
-                    isWinner
+                  className={`border rounded-lg p-4 flex flex-wrap items-center justify-between gap-4 ${isWinner
                       ? 'border-emerald-300 dark:border-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/10'
                       : 'border-gray-200 dark:border-gray-700'
-                  }`}
+                    }`}
                 >
                   <div>
                     <div className="flex items-center gap-2">
@@ -283,11 +280,10 @@ export function TenderDetail({
                       type="button"
                       onClick={() => onCastVote(selectedTender.id, bid.id)}
                       disabled={loading || hasVoted}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
-                        hasVoted
+                      className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${hasVoted
                           ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                           : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
-                      }`}
+                        }`}
                     >
                       <ThumbsUp size={16} />
                       {hasVoted ? 'Hlasovali ste' : 'Hlasovať'}

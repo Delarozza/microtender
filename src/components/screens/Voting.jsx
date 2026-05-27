@@ -10,9 +10,8 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
   const [voteCounts, setVoteCounts] = useState({});
   const [hasVotedMap, setHasVotedMap] = useState({});
 
-  const votingTenders = tenders.filter((t) => t.statusIndex === 2);
-
   useEffect(() => {
+    const votingTenders = tenders.filter((t) => t.statusIndex === 2);
     if (!contract || votingTenders.length === 0) {
       setTendersWithBids([]);
       return;
@@ -39,7 +38,7 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
     };
     load();
     return () => { cancelled = true; };
-  }, [contract, tenders]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [contract, tenders]);
 
   useEffect(() => {
     if (!contract || !account || tendersWithBids.length === 0) {
@@ -143,11 +142,10 @@ export function Voting({ tenders, contract, account, onVote, loading }) {
                           type="button"
                           onClick={() => onVote(tender.id, offer.id)}
                           disabled={loading || hasVoted}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            hasVoted || loading
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${hasVoted || loading
                               ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                               : 'bg-blue-600 text-white hover:bg-blue-700'
-                          }`}
+                            }`}
                         >
                           {hasVoted ? 'Hlasovali ste' : loading ? 'Spracovanie...' : 'Hlasovať'}
                         </button>

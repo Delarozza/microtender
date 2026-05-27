@@ -17,14 +17,13 @@ export const WalletProvider = ({ children }) => {
   const [isRegisteredVendor, setIsRegisteredVendor] = useState(false);
   const [myApplicationStatus, setMyApplicationStatus] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+
   const accountRef = useRef(account);
 
   useEffect(() => {
     accountRef.current = account;
   }, [account]);
 
-  // Read-only fallback
   useEffect(() => {
     if (!account) {
       const tryRpc = (rpcUrl) => {
@@ -40,7 +39,6 @@ export const WalletProvider = ({ children }) => {
     }
   }, [account]);
 
-  // Handle metamask events
   useEffect(() => {
     if (!window.ethereum) return;
 
@@ -51,7 +49,7 @@ export const WalletProvider = ({ children }) => {
       }
       const newAddress = accounts[0];
       if (newAddress === account) return;
-      
+
       try {
         const provider = new BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
@@ -75,7 +73,6 @@ export const WalletProvider = ({ children }) => {
     };
   }, [account]);
 
-  // Load roles when contract/account changes
   useEffect(() => {
     const loadUserRole = async () => {
       const accountToLoad = account;
@@ -91,8 +88,6 @@ export const WalletProvider = ({ children }) => {
         if (accountRef.current !== accountToLoad) return;
         setUserRole(roleNumber);
         setIsMember(isCouncilMember);
-
-        // Check vendor status
         const isVendor = await contract.isRegisteredVendor(accountToLoad);
         if (accountRef.current !== accountToLoad) return;
         setIsRegisteredVendor(isVendor);
@@ -168,7 +163,7 @@ export const WalletProvider = ({ children }) => {
 
       const network = await provider.getNetwork();
       const chainId = Number(network.chainId);
-      
+
       if (chainId !== CHAIN_ID_AMOY) {
         const switched = await requestSwitchToAmoy();
         if (!switched) {

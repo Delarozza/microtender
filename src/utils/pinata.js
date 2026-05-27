@@ -14,35 +14,29 @@
  * @returns {Promise<string>} CID (Content Identifier) súboru
  */
 export const uploadToIPFS = async (file) => {
-  // PRODUCTION FIX: Route through a backend proxy
-  // const response = await fetch('/api/ipfs/upload', { method: 'POST', body: formData });
-  
-  // PoC FALLBACK (Iba ak ide o študentské demo bez backendu):
+
   const PINATA_JWT = process.env.REACT_APP_PINATA_JWT;
-  
+
   if (!PINATA_JWT) {
     throw new Error('PINATA_JWT nie je nastavený. Pridajte REACT_APP_PINATA_JWT do .env.local');
   }
   console.warn("SECURITY WARNING: Pinata JWT is exposed on the client. In production, move this to a Node.js backend.");
 
-  // Validácia súboru
   const maxSize = 10 * 1024 * 1024; // 10MB
   if (file.size > maxSize) {
     throw new Error(`Súbor je príliš veľký. Maximálna veľkosť: 10MB`);
   }
 
-  const allowedTypes = ['application/pdf', 'application/msword', 
+  const allowedTypes = ['application/pdf', 'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
   if (!allowedTypes.includes(file.type)) {
     throw new Error('Podporované sú len súbory: PDF, DOC, DOCX');
   }
 
   try {
-    // Vytvorenie FormData
     const formData = new FormData();
     formData.append('file', file);
 
-    // Metadáta súboru
     const metadata = JSON.stringify({
       name: file.name,
       keyvalues: {
@@ -52,13 +46,10 @@ export const uploadToIPFS = async (file) => {
     });
     formData.append('pinataMetadata', metadata);
 
-    // Možnosti pinningu
     const options = JSON.stringify({
       cidVersion: 0,
     });
     formData.append('pinataOptions', options);
-
-    // Nahranie do služby Pinata
     const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
       method: 'POST',
       headers: {
@@ -73,7 +64,7 @@ export const uploadToIPFS = async (file) => {
     }
 
     const data = await response.json();
-    return data.IpfsHash; // CID
+    return data.IpfsHash;
   } catch (error) {
     console.error('Chyba nahrávania do IPFS:', error);
     throw error;

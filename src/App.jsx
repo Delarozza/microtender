@@ -17,15 +17,16 @@ import { VendorRegistration } from './components/screens/VendorRegistration';
 import { VendorApproval } from './components/screens/VendorApproval';
 import { Settings } from './components/screens/Settings';
 import { Reports } from './components/screens/Reports';
+import { getIPFSUrl } from './utils/pinata';
 
 const NOTIF_ICONS = {
-  tender_created:       { icon: FileText,     color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/10' },
-  bid_submitted:        { icon: ShoppingBag,  color: 'text-green-500 bg-green-50 dark:bg-green-900/10' },
-  vote_casted:          { icon: Vote,         color: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/10' },
-  tender_completed:     { icon: CheckCircle,  color: 'text-purple-500 bg-purple-50 dark:bg-purple-900/10' },
-  vendor_app_submitted: { icon: UserPlus,     color: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-900/10' },
-  vendor_app_approved:  { icon: CheckCircle,  color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/10' },
-  vendor_app_rejected:  { icon: XCircle,      color: 'text-red-500 bg-red-50 dark:bg-red-900/10' },
+  tender_created: { icon: FileText, color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/10' },
+  bid_submitted: { icon: ShoppingBag, color: 'text-green-500 bg-green-50 dark:bg-green-900/10' },
+  vote_casted: { icon: Vote, color: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/10' },
+  tender_completed: { icon: CheckCircle, color: 'text-purple-500 bg-purple-50 dark:bg-purple-900/10' },
+  vendor_app_submitted: { icon: UserPlus, color: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-900/10' },
+  vendor_app_approved: { icon: CheckCircle, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/10' },
+  vendor_app_rejected: { icon: XCircle, color: 'text-red-500 bg-red-50 dark:bg-red-900/10' },
 };
 
 function MainAppContent() {
@@ -46,7 +47,6 @@ function MainAppContent() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load all tenders initially
   const { loadAllTenders } = tenderMethods;
   useEffect(() => {
     if (contract) loadAllTenders();
@@ -61,47 +61,46 @@ function MainAppContent() {
     <div className="flex h-screen bg-gray-50 dark:bg-[#171f2b]">
       {/* Sidebar Desktop */}
       <div className="hidden md:block">
-        <Sidebar 
-          activeItem={location.pathname} 
-          onNavigate={handleNavigate} 
-          account={account} 
-          isMember={isMember} 
-          isRegisteredVendor={isRegisteredVendor} 
+        <Sidebar
+          activeItem={location.pathname}
+          onNavigate={handleNavigate}
+          account={account}
+          isMember={isMember}
+          isRegisteredVendor={isRegisteredVendor}
         />
       </div>
 
       {/* Mobile Menu Backdrop */}
       {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden" 
-          onClick={() => setIsMobileMenuOpen(false)} 
-          aria-hidden="true" 
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar Mobile */}
-      <div 
-        className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
-        <Sidebar 
-          activeItem={location.pathname} 
-          onNavigate={handleNavigate} 
-          account={account} 
-          isMember={isMember} 
-          isRegisteredVendor={isRegisteredVendor} 
+        <Sidebar
+          activeItem={location.pathname}
+          onNavigate={handleNavigate}
+          account={account}
+          isMember={isMember}
+          isRegisteredVendor={isRegisteredVendor}
         />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header 
-          onMenuClick={() => setIsMobileMenuOpen(true)} 
-          account={account} 
-          onConnectWallet={connectWallet} 
-          onDisconnect={disconnectWallet} 
-          isMember={isMember} 
+        <Header
+          onMenuClick={() => setIsMobileMenuOpen(true)}
+          account={account}
+          onConnectWallet={connectWallet}
+          onDisconnect={disconnectWallet}
+          isMember={isMember}
           isRegisteredVendor={isRegisteredVendor}
           notifications={notifications}
           unreadCount={unreadCount}
@@ -109,34 +108,34 @@ function MainAppContent() {
           onMarkAllAsRead={markAllAsRead}
           onClearAll={clearAll}
         />
-        
+
         <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-[#171f2b]">
           <Routes>
             <Route path="/" element={<Dashboard onNavigate={handleNavigate} tenders={tenderMethods.allTenders} account={account} isMember={isMember} isRegisteredVendor={isRegisteredVendor} />} />
-            
+
             <Route path="/tenders/new" element={isMember ? <CreateTender onNavigate={handleNavigate} createForm={tenderMethods.createForm} setCreateForm={tenderMethods.setCreateForm} createAndPublishTender={() => tenderMethods.createAndPublishTender(() => navigate('/tenders'))} loading={tenderMethods.loading} selectedFile={tenderMethods.selectedFile} ipfsCID={tenderMethods.ipfsCID} uploadingFile={tenderMethods.uploadingFile} uploadProgress={tenderMethods.uploadProgress} handleFileSelect={tenderMethods.handleFileSelect} removeFile={tenderMethods.removeFile} isMember={isMember} account={account} /> : <Navigate to="/" />} />
-            
+
             <Route path="/tenders/my" element={isMember ? <MyTenders onNavigate={handleNavigate} tenders={tenderMethods.allTenders} account={account} onSelectTender={(id) => { tenderMethods.getTenderDetails(id); navigate(`/tenders/${id}`); }} /> : <Navigate to="/" />} />
-            
+
             <Route path="/tenders" element={<AllTenders tenders={tenderMethods.allTenders} onSelectTender={(id) => { tenderMethods.getTenderDetails(id); navigate(`/tenders/${id}`); }} onNavigate={handleNavigate} />} />
-            
+
             <Route path="/voting" element={isMember ? <Voting tenders={tenderMethods.allTenders} contract={contract} account={account} onVote={tenderMethods.castVote} loading={tenderMethods.loading} /> : <Navigate to="/" />} />
-            
-            <Route path="/tenders/:id" element={<TenderDetail selectedTender={tenderMethods.selectedTender} bids={tenderMethods.bids} loading={tenderMethods.loading} account={account} isMember={isMember} isRegisteredVendor={isRegisteredVendor} contract={contract} onBack={() => navigate('/tenders')} onStartVoting={tenderMethods.startVoting} votingDaysInput={tenderMethods.votingDaysInput} setVotingDaysInput={tenderMethods.setVotingDaysInput} onCastVote={tenderMethods.castVote} bidForm={tenderMethods.bidForm} setBidForm={tenderMethods.setBidForm} onSubmitBid={tenderMethods.submitBid} getIPFSUrl={null} onCancelTender={tenderMethods.cancelTender} onFinalizeTender={tenderMethods.finalizeTender} onFulfillTender={tenderMethods.fulfillTender} onUpdateIPFSCID={tenderMethods.updateTenderIPFSCID} />} />
-            
+
+            <Route path="/tenders/:id" element={<TenderDetail selectedTender={tenderMethods.selectedTender} bids={tenderMethods.bids} loading={tenderMethods.loading} account={account} isMember={isMember} isRegisteredVendor={isRegisteredVendor} contract={contract} onBack={() => navigate('/tenders')} onStartVoting={tenderMethods.startVoting} votingDaysInput={tenderMethods.votingDaysInput} setVotingDaysInput={tenderMethods.setVotingDaysInput} onCastVote={tenderMethods.castVote} bidForm={tenderMethods.bidForm} setBidForm={tenderMethods.setBidForm} onSubmitBid={tenderMethods.submitBid} getIPFSUrl={getIPFSUrl} onCancelTender={tenderMethods.cancelTender} onFinalizeTender={tenderMethods.finalizeTender} onFulfillTender={tenderMethods.fulfillTender} onUpdateIPFSCID={tenderMethods.updateTenderIPFSCID} />} />
+
             <Route path="/vendor/register" element={<VendorRegistration account={account} isRegisteredVendor={isRegisteredVendor} myApplicationStatus={myApplicationStatus} vendorApplicationForm={tenderMethods.vendorApplicationForm} setVendorApplicationForm={tenderMethods.setVendorApplicationForm} onSubmit={() => tenderMethods.submitVendorApplication()} loading={tenderMethods.loading} onNavigate={handleNavigate} />} />
-            
+
             <Route path="/vendor/approvals" element={isMember ? <VendorApproval vendorApplications={tenderMethods.vendorApplications} loading={tenderMethods.loading} onApprove={tenderMethods.approveVendorApplication} onReject={tenderMethods.rejectVendorApplication} onRevoke={tenderMethods.revokeVendorStatus} onLoad={tenderMethods.loadVendorApplications} isMember={isMember} /> : <Navigate to="/" />} />
-            
+
             <Route path="/reports" element={isMember ? <Reports tenders={tenderMethods.allTenders} contract={contract} account={account} /> : <Navigate to="/" />} />
-            
-            <Route path="/settings" element={<Settings account={account} isMember={isMember} userRole={userRole} isRegisteredVendor={isRegisteredVendor} myApplicationStatus={myApplicationStatus} contract={contract} loading={tenderMethods.loading} setLoading={() => {}} />} />
-            
+
+            <Route path="/settings" element={<Settings account={account} isMember={isMember} userRole={userRole} isRegisteredVendor={isRegisteredVendor} myApplicationStatus={myApplicationStatus} contract={contract} loading={tenderMethods.loading} setLoading={() => { }} />} />
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
       </div>
-      
+
       {tenderMethods.loading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-xl">

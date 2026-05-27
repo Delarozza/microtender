@@ -23,13 +23,10 @@ export function useTenderContract(contract, account, isMember) {
   const [bids, setBids] = useState([]);
   const [vendorApplications, setVendorApplications] = useState([]);
 
-  // Form states
   const [createForm, setCreateForm] = useState({ title: '', description: '', budget: '', category: 'tlac', daysOpen: '7', votingDays: '3' });
   const [bidForm, setBidForm] = useState({ tenderId: '', priceEUR: '', deliveryTime: '', description: '' });
   const [vendorApplicationForm, setVendorApplicationForm] = useState({ companyName: '', contactInfo: '', description: '' });
   const [votingDaysInput, setVotingDaysInput] = useState('3');
-
-  // IPFS states
   const [selectedFile, setSelectedFile] = useState(null);
   const [ipfsCID, setIpfsCID] = useState('');
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -50,7 +47,7 @@ export function useTenderContract(contract, account, isMember) {
           try {
             const bc = await contract.getBidCount(i);
             bidCount = Number(bc);
-          } catch (_) {}
+          } catch (_) { }
           tendersData.push({
             id: tender.id.toString(),
             creator: tender.creator,
@@ -65,7 +62,7 @@ export function useTenderContract(contract, account, isMember) {
             createdAt: tender.createdAt.toString(),
             bidCount,
           });
-        } catch (err) {}
+        } catch (err) { }
       }
       setAllTenders(tendersData);
     } catch (error) {
@@ -81,7 +78,7 @@ export function useTenderContract(contract, account, isMember) {
       setLoading(true);
       const tender = await contract.getTender(id);
       const bidsData = await contract.getTenderBids(id);
-      
+
       setSelectedTender({
         id: tender.id.toString(),
         creator: tender.creator,
@@ -95,7 +92,7 @@ export function useTenderContract(contract, account, isMember) {
         deadline: tender.deadline.toString(),
         votingDeadline: tender.votingDeadline.toString()
       });
-      
+
       setBids(bidsData.map(b => ({
         id: b.id.toString(),
         tenderId: b.tenderId.toString(),
@@ -122,7 +119,7 @@ export function useTenderContract(contract, account, isMember) {
     const days = parseInt(createForm.daysOpen, 10);
     const votePlan = parseInt(createForm.votingDays, 10);
     if (isNaN(days) || days < 3 || days > 14 || isNaN(votePlan) || votePlan < 3 || votePlan > 14) {
-      alert('Počet dní na ponuky/hlasovanie musí byť 3–14.');
+      alert('Počet dní na ponuky/hlasovanie musí byť 3-14.');
       return;
     }
 
@@ -132,13 +129,13 @@ export function useTenderContract(contract, account, isMember) {
       const overrides = await getGasOverrides(contract);
       const txCreate = await contract.createTender(createForm.title, createForm.description || '', budgetInWei, createForm.category, ipfsCID || '', days, overrides);
       await txCreate.wait();
-      
+
       alert(`✅ Tender bol vytvorený.`);
       setCreateForm({ title: '', description: '', budget: '', category: 'tlac', daysOpen: '7', votingDays: '3' });
       setSelectedFile(null);
       setIpfsCID('');
       loadAllTenders();
-      if(onSuccess) onSuccess();
+      if (onSuccess) onSuccess();
     } catch (error) {
       alert('Chyba: ' + extractRevertReason(error));
     } finally {
@@ -191,7 +188,7 @@ export function useTenderContract(contract, account, isMember) {
       await tx.wait();
       alert(`✅ Žiadosť bola odoslaná!`);
       setVendorApplicationForm({ companyName: '', contactInfo: '', description: '' });
-      if(onSuccess) onSuccess();
+      if (onSuccess) onSuccess();
     } catch (error) {
       alert('Chyba: ' + extractRevertReason(error));
     } finally {
@@ -319,7 +316,7 @@ export function useTenderContract(contract, account, isMember) {
               status: app.status
             });
           }
-        } catch (e) {}
+        } catch (e) { }
       }
       setVendorApplications(applications);
     } catch (error) { }
@@ -334,7 +331,7 @@ export function useTenderContract(contract, account, isMember) {
       await tx.wait();
       alert(`✅ Žiadosť bola schválená!`);
       await loadVendorApplications();
-    } catch(err) { alert('Chyba: ' + extractRevertReason(err)); } finally { setLoading(false); }
+    } catch (err) { alert('Chyba: ' + extractRevertReason(err)); } finally { setLoading(false); }
   };
 
   const rejectVendorApplication = async (appId) => {
@@ -346,7 +343,7 @@ export function useTenderContract(contract, account, isMember) {
       await tx.wait();
       alert(`❌ Žiadosť bola zamietnutá.`);
       await loadVendorApplications();
-    } catch(err) { alert('Chyba: ' + extractRevertReason(err)); } finally { setLoading(false); }
+    } catch (err) { alert('Chyba: ' + extractRevertReason(err)); } finally { setLoading(false); }
   };
 
   const revokeVendorStatus = async (vendorAddress) => {
@@ -358,7 +355,7 @@ export function useTenderContract(contract, account, isMember) {
       await tx.wait();
       alert(`✅ Status dodávateľa bol odvolaný.`);
       await loadVendorApplications();
-    } catch(err) { alert('Chyba: ' + extractRevertReason(err)); } finally { setLoading(false); }
+    } catch (err) { alert('Chyba: ' + extractRevertReason(err)); } finally { setLoading(false); }
   };
 
   const updateTenderIPFSCID = async (tenderId, newCID) => {
@@ -370,7 +367,7 @@ export function useTenderContract(contract, account, isMember) {
       await tx.wait();
       alert(`✅ Dokument bol aktualizovaný.`);
       getTenderDetails(tenderId);
-    } catch(err) { alert('Chyba: ' + extractRevertReason(err)); } finally { setLoading(false); }
+    } catch (err) { alert('Chyba: ' + extractRevertReason(err)); } finally { setLoading(false); }
   };
 
 

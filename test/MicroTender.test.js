@@ -18,16 +18,13 @@ describe("MicroTender", function () {
   let other;
 
   beforeEach(async function () {
-    // Получаем тестовые аккаунты
     [owner, member, vendor, vendor2, other] = await ethers.getSigners();
 
-    // Развертываем контракт
     const MicroTender = await ethers.getContractFactory("MicroTender");
     microTender = await MicroTender.deploy();
     await microTender.waitForDeployment();
 
-    // Назначаем member роль Member
-    await microTender.grantRole(member.address, 0); // 0 = Member
+    await microTender.grantRole(member.address, 0);
   });
 
   describe("Deployment", function () {
@@ -37,7 +34,7 @@ describe("MicroTender", function () {
 
     it("Should set owner as Admin", async function () {
       const role = await microTender.getUserRole(owner.address);
-      expect(role).to.equal(1); // 1 = Admin
+      expect(role).to.equal(1);
     });
 
     it("Should initialize counters to 0", async function () {
@@ -50,13 +47,13 @@ describe("MicroTender", function () {
     it("Should allow owner to grant Member role", async function () {
       await microTender.grantRole(other.address, 0);
       const role = await microTender.getUserRole(other.address);
-      expect(role).to.equal(0); // Member
+      expect(role).to.equal(0);
     });
 
     it("Should allow owner to grant Admin role", async function () {
       await microTender.grantRole(other.address, 1);
       const role = await microTender.getUserRole(other.address);
-      expect(role).to.equal(1); // Admin
+      expect(role).to.equal(1);
     });
 
     it("Should not allow non-owner to grant roles", async function () {
@@ -70,7 +67,7 @@ describe("MicroTender", function () {
     it("Should allow Member to create tender", async function () {
       const title = "Nákup 50 markerov";
       const description = "Potrebujeme 50 markerov pre študentov";
-      const maxBudget = ethers.parseEther("1.0"); // 1 ETH
+      const maxBudget = ethers.parseEther("1.0");
       const category = "Kancelárske potreby";
       const ipfsCID = "QmTest123";
       await expect(
@@ -92,7 +89,7 @@ describe("MicroTender", function () {
       expect(tender.maxBudget).to.equal(maxBudget);
       expect(tender.category).to.equal(category);
       expect(tender.ipfsCID).to.equal(ipfsCID);
-      expect(tender.status).to.equal(0); // Open
+      expect(tender.status).to.equal(0);
       expect(await microTender.tenderCounter()).to.equal(1);
     });
 
@@ -102,11 +99,10 @@ describe("MicroTender", function () {
       const maxBudget = ethers.parseEther("1.0");
       const category = "Kancelárske potreby";
       const ipfsCID = "QmTest123";
-      
-      // Проверяем, что vendor не имеет установленной роли
+
       const hasVendorRole = await microTender.hasRole(vendor.address);
       expect(hasVendorRole).to.be.false;
-      
+
       await expect(
         microTender.connect(vendor).createTender(
           title,
@@ -124,7 +120,7 @@ describe("MicroTender", function () {
       const description = "Potrebujeme 50 markerov pre študentov";
       const maxBudget = ethers.parseEther("1.0");
       const category = "Kancelárske potreby";
-      
+
       await microTender.connect(member).createTender(
         title,
         description,
@@ -174,7 +170,6 @@ describe("MicroTender", function () {
 
     beforeEach(async function () {
       const maxBudget = ethers.parseEther("1.0");
-      // Создаем и публикуем tender
       const tx = await microTender.connect(member).createTender(
         "Test Tender",
         "Test Description",
@@ -184,7 +179,7 @@ describe("MicroTender", function () {
         7
       );
       const receipt = await tx.wait();
-      // В ethers v6 события доступны через logs
+
       const event = receipt.logs.find(log => {
         try {
           const parsed = microTender.interface.parseLog(log);
@@ -196,7 +191,6 @@ describe("MicroTender", function () {
       const parsedEvent = microTender.interface.parseLog(event);
       tenderId = parsedEvent.args.tenderId;
 
-      // Регистрируем vendor через application flow
       await microTender.connect(vendor).submitVendorApplication("Firma", "info@f.sk", "Opis");
       await microTender.connect(member).approveVendorApplication(1);
     });
@@ -280,7 +274,6 @@ describe("MicroTender", function () {
     beforeEach(async function () {
       const maxBudget = ethers.parseEther("1.0");
       const bidPrice = ethers.parseEther("0.5");
-      // Создаем tender
       const tx = await microTender.connect(member).createTender(
         "Voting Test",
         "Description",
@@ -290,7 +283,6 @@ describe("MicroTender", function () {
         7
       );
       const receipt = await tx.wait();
-      // В ethers v6 события доступны через logs
       const event = receipt.logs.find(log => {
         try {
           const parsed = microTender.interface.parseLog(log);
@@ -302,7 +294,6 @@ describe("MicroTender", function () {
       const parsedEvent = microTender.interface.parseLog(event);
       tenderId = parsedEvent.args.tenderId;
 
-      // Регистрируем vendors через application flow
       await microTender.connect(vendor).submitVendorApplication("Firma A", "a@f.sk", "Opis");
       await microTender.connect(member).approveVendorApplication(1);
       await microTender.connect(vendor2).submitVendorApplication("Firma B", "b@f.sk", "Opis");
@@ -351,7 +342,6 @@ describe("MicroTender", function () {
         "Ponuka 3"
       );
 
-      // Начинаем голосование
       await microTender.connect(member).startVoting(tenderId, 3);
     });
 
@@ -404,7 +394,6 @@ describe("MicroTender", function () {
         }
       });
       const tid = microTender.interface.parseLog(event).args.tenderId;
-      // vendor and vendor2 already registered in this describe's beforeEach
       await microTender.connect(vendor).submitBid(tid, bidPrice, 7, "P1");
       await microTender.connect(vendor2).submitBid(tid, bidPrice, 5, "P2");
       await microTender.connect(vendor).submitBid(tid, bidPrice, 6, "P3");
@@ -427,7 +416,7 @@ describe("MicroTender", function () {
     it("Should not allow non-member to vote", async function () {
       const hasVendorRole = await microTender.hasRole(vendor.address);
       expect(hasVendorRole).to.be.false;
-      
+
       await expect(
         microTender.connect(vendor).castVote(tenderId, bidId1)
       ).to.be.revertedWith("Only members");
@@ -484,7 +473,7 @@ describe("MicroTender", function () {
     beforeEach(async function () {
       const maxBudget = ethers.parseEther("1.0");
       const bidPrice = ethers.parseEther("0.5");
-      // Создаем tender
+
       const tx = await microTender.connect(member).createTender(
         "Finalization Test",
         "Description",
@@ -494,7 +483,6 @@ describe("MicroTender", function () {
         7
       );
       const receipt = await tx.wait();
-      // В ethers v6 события доступны через logs
       const event = receipt.logs.find(log => {
         try {
           const parsed = microTender.interface.parseLog(log);
@@ -506,7 +494,6 @@ describe("MicroTender", function () {
       const parsedEvent = microTender.interface.parseLog(event);
       tenderId = parsedEvent.args.tenderId;
 
-      // Регистрируем vendors через application flow
       await microTender.connect(vendor).submitVendorApplication("Firma A", "a@f.sk", "Opis");
       await microTender.connect(member).approveVendorApplication(1);
       await microTender.connect(vendor2).submitVendorApplication("Firma B", "b@f.sk", "Opis");
@@ -555,14 +542,12 @@ describe("MicroTender", function () {
         "Ponuka 3"
       );
 
-      // Начинаем голосование
       await microTender.connect(member).startVoting(tenderId, 3);
     });
 
     it("Should allow creator to finalize tender", async function () {
       await microTender.connect(member).castVote(tenderId, bidId1);
 
-      // Advance time past the 3-day voting deadline
       await hre.network.provider.send("evm_increaseTime", [3 * 24 * 60 * 60 + 1]);
       await hre.network.provider.send("evm_mine");
 
@@ -573,7 +558,7 @@ describe("MicroTender", function () {
         .withArgs(tenderId, bidId1);
 
       const tender = await microTender.getTender(tenderId);
-      expect(tender.status).to.equal(2); // Completed
+      expect(tender.status).to.equal(2);
     });
 
     it("Should not allow non-creator to finalize", async function () {
@@ -616,7 +601,6 @@ describe("MicroTender", function () {
     it("Should convert wei to ether correctly", async function () {
       const wei = ethers.parseEther("1.5");
       const ether = await microTender.weiToEther(wei);
-      // weiToEther возвращает wei / 1 ether, что равно 1.5, но в BigNumber это будет 1 (целое число)
       expect(Number(ether)).to.equal(1);
     });
 

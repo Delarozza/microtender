@@ -74,8 +74,7 @@ export function useNotifications(contract, account, onNewNotification) {
       } catch (_) {
         activeProvider = new ethers.JsonRpcProvider(AMOY_RPC_FALLBACK);
       }
-      
-      // Silence background network glitches to avoid popping React Error Overlay
+
       activeProvider.on("error", (err) => {
         console.warn("Background notification provider network error:", err);
       });
@@ -194,12 +193,12 @@ export function useNotifications(contract, account, onNewNotification) {
           activeContract.removeAllListeners('VendorApplicationApproved');
           activeContract.removeAllListeners('VendorApplicationRejected');
         }
-      } catch (_) {}
+      } catch (_) { }
       try {
         if (activeProvider) {
           activeProvider.removeAllListeners();
         }
-      } catch (_) {}
+      } catch (_) { }
     };
   }, [addNotification]);
 

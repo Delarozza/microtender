@@ -42,7 +42,6 @@ export function Sidebar({ activeItem, onNavigate, account, isMember, isRegistere
         <ul className="space-y-2">
           {visibleItems.map((item) => {
             const Icon = item.icon;
-            // Check if active based on exact or partial path
             const isActive = activeItem === item.path;
 
             return (
@@ -50,11 +49,10 @@ export function Sidebar({ activeItem, onNavigate, account, isMember, isRegistere
                 <Link
                   to={item.path}
                   onClick={() => onNavigate && onNavigate(item.path)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${
-                    isActive
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${isActive
                       ? 'bg-purple-600 text-white font-medium'
                       : 'text-gray-300 hover:bg-[#34495e] dark:hover:bg-gray-700/50'
-                  }`}
+                    }`}
                 >
                   <Icon size={20} className="flex-shrink-0" />
                   <span className="min-w-0 truncate">{item.label}</span>
